@@ -14,7 +14,7 @@ const Page = () => {
   const[firstName, setFirstName] =useState(user?.firstName);
   const[lastName, setLastName] = useState(user?.lastName);
   const[email, setEmail] = useState(user?.emailAddresses[0].emailAddress);
-  const [edit, setEdit] = useState(false);
+  const[edit, setEdit] = useState(false);
 
   useEffect(() => {
     if(!user) return;
