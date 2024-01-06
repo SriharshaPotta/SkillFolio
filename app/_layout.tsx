@@ -1,10 +1,11 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useFonts } from 'expo-font';
 import { SplashScreen, Stack, useRouter } from 'expo-router';
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import * as SecureStore from 'expo-secure-store';
 import { ClerkProvider, useAuth } from '@clerk/clerk-expo';
+import { NavigationContainer } from '@react-navigation/native';
 
 const CLERK_PUBLISHABLE_KEY = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY;
 
@@ -76,36 +77,34 @@ function RootLayoutNav() {
     }  
   }, [isLoaded]);
   return (
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen
-          name="(modals)/login"
-          options={{
-            presentation: 'modal',
-            title: 'Log in or sign up',
-            headerTitleStyle: {
-              fontFamily: 'mon-sb',
-            },
-            headerLeft: () => (
-              <TouchableOpacity onPress={() => router.back()}>
-                <Ionicons name="close-outline" size={28} />
-              </TouchableOpacity>
-            ),
-          }}
-        />
-        <Stack.Screen name="listing/[id]" options={{headerTitle: ''}}/>
-        <Stack.Screen 
-          name="(modals)/booking"
-          options={{
-            presentation: 'transparentModal',
-            animation: 'fade',
-            headerLeft: () => (
-              <TouchableOpacity onPress={() => router.back()}>
-                <Ionicons name="close-outline" size={28} />
-              </TouchableOpacity>
-            ),
-          }}
-        />
-      </Stack>
+    <Stack
+      screenOptions={{
+        headerShown: false,
+        headerStyle: {
+          backgroundColor: "#fff",
+        },
+        headerTintColor: "#FDFFFF",
+        headerBackTitle: "Back",
+      }}
+    >
+      <Stack.Screen
+        name="(modals)/login"
+        options={{
+          headerTitle: "Clerk Auth App",
+        }}
+      ></Stack.Screen>
+      <Stack.Screen
+        name="(modals)/signup"
+        options={{
+          headerTitle: "Create Account",
+        }}
+      ></Stack.Screen>
+      <Stack.Screen
+        name="(modals)/reset"
+        options={{
+          headerTitle: "Reset Password",
+        }}
+      ></Stack.Screen>
+    </Stack>
   );
 }

@@ -17,28 +17,16 @@ const Layout = () => {
         name = "index"
         options={{
           tabBarLabel: "Explore",
+          headerShown: false,
           tabBarIcon: ({color, size}) => <Ionicons name="search" color={color} size={size}/>
         }}
       />
       <Tabs.Screen
-        name = "wishlists"
+        name = "portfolio"
         options={{
-          tabBarLabel: "Wishlists",
-          tabBarIcon: ({color, size}) => <Ionicons name="heart-outline" color={color} size={size}/>
-        }}
-      />
-      <Tabs.Screen
-        name = "trips"
-        options={{
-          tabBarLabel: "Trips",
-          tabBarIcon: ({color, size}) => <FontAwesome5 name="airbnb" color={color} size={size}/>
-        }}
-      />
-      <Tabs.Screen
-        name = "inbox"
-        options={{
-          tabBarLabel: "Inbox",
-          tabBarIcon: ({color, size}) => <MaterialCommunityIcons name="message-outline" color={color} size={size}/>
+          tabBarLabel: "Portfolio",
+          headerShown: false,
+          tabBarIcon: ({color, size}) => <Ionicons name="folder-open" color={color} size={size}/>
         }}
       />
       <Tabs.Screen

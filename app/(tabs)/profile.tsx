@@ -16,6 +16,8 @@ const Page = () => {
   const[email, setEmail] = useState(user?.emailAddresses[0].emailAddress);
   const[edit, setEdit] = useState(false);
 
+  const [isBellPressed, setIsBellPressed] = useState(false);
+
   useEffect(() => {
     if(!user) return;
 
@@ -60,7 +62,9 @@ const Page = () => {
     <SafeAreaView style={defaultStyles.container}>
       <View style={styles.headerContainer}>
         <Text style={styles.header}>Profile</Text>
-        <Ionicons name='notifications-outline' size={26} />
+        <TouchableOpacity onPress={() => setIsBellPressed(!isBellPressed)}>
+          <Ionicons name={isBellPressed ? 'notifications' : 'notifications-outline'} size={26} color={Colors.primary} />
+        </TouchableOpacity>
       </View>
 
       {user && (
@@ -68,14 +72,18 @@ const Page = () => {
           <TouchableOpacity onPress={onCaptureImage}>
             <Image source={{ uri: user?.imageUrl }} style={styles.avatar} />
           </TouchableOpacity>
-          <View style={{ flexDirection: 'row', gap: 6 }}>
+          <View style={{ flexDirection: "row", gap: 6 }}>
             {!edit && (
               <View style={styles.editRow}>
-                <Text style={{ fontFamily: 'mon-b', fontSize: 22 }}>
+                <Text style={{ fontFamily: "mon-b", fontSize: 22 }}>
                   {firstName} {lastName}
                 </Text>
                 <TouchableOpacity onPress={() => setEdit(true)}>
-                  <Ionicons name="create-outline" size={24} color={Colors.dark} />
+                  <Ionicons
+                    name="create-outline"
+                    size={24}
+                    color={Colors.dark}
+                  />
                 </TouchableOpacity>
               </View>
             )}
@@ -83,18 +91,22 @@ const Page = () => {
               <View style={styles.editRow}>
                 <TextInput
                   placeholder="First Name"
-                  value={firstName || ''}
+                  value={firstName || ""}
                   onChangeText={setFirstName}
                   style={[defaultStyles.inputField, { width: 100 }]}
                 />
                 <TextInput
                   placeholder="Last Name"
-                  value={lastName || ''}
+                  value={lastName || ""}
                   onChangeText={setLastName}
                   style={[defaultStyles.inputField, { width: 100 }]}
                 />
                 <TouchableOpacity onPress={onSaveUser}>
-                  <Ionicons name="checkmark-outline" size={24} color={Colors.dark} />
+                  <Ionicons
+                    name="checkmark-outline"
+                    size={24}
+                    color={Colors.dark}
+                  />
                 </TouchableOpacity>
               </View>
             )}
@@ -103,17 +115,25 @@ const Page = () => {
           <Text>Since {user?.createdAt!.toLocaleDateString()}</Text>
         </View>
       )}
-
-      {isSignedIn && <Button title="Log Out" onPress={() => signOut()} color={Colors.dark} />}
+      <Link href={"/(modals)/login"} asChild>
+        {isSignedIn && (
+          <Button
+            title="Log Out"
+            onPress={() => signOut()}
+            color={Colors.dark}
+          />
+        )}
+      </Link>
 
       {!isSignedIn && (
-      <Link href={'/(modals)/login'} asChild>
-        <Button title="Log in" color={Colors.dark} />
-      </Link>
+        <Link href={"/(modals)/login"} asChild>
+          <Button title="Log in" color={Colors.dark} />
+        </Link>
       )}
     </SafeAreaView>
   );
 };
+
 
 const styles = StyleSheet.create({
   headerContainer: {
@@ -159,5 +179,10 @@ const styles = StyleSheet.create({
   },
 });
 
+
+export const getFirstName = () => {
+  const { user } = useUser();
+  return user?.firstName || "";
+};
 
 export default Page
