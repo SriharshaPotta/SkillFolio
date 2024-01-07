@@ -5,6 +5,8 @@ import portfolio from "./(tabs)/portfolio)"; // Import your screen components
 import profile from "./(tabs)/profile)"; // Import your screen components
 import login from "./(modals)/login)"; // Import your screen components
 import signup from "./(modals)/signup)"; // Import your screen components
+import firebase from "firebase/app"
+import { config } from "../config/firebase"
 
 const Stack = createStackNavigator();
 

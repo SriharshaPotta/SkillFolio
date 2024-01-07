@@ -9,7 +9,7 @@ import * as ImagePicker from 'expo-image-picker';
 
 
 const Page = () => {
-  const{signOut, isSignedIn} = useAuth();
+  const{ signOut, isSignedIn } = useAuth();
   const{ user }= useUser();
   const[firstName, setFirstName] =useState(user?.firstName);
   const[lastName, setLastName] = useState(user?.lastName);
@@ -63,7 +63,11 @@ const Page = () => {
       <View style={styles.headerContainer}>
         <Text style={styles.header}>Profile</Text>
         <TouchableOpacity onPress={() => setIsBellPressed(!isBellPressed)}>
-          <Ionicons name={isBellPressed ? 'notifications' : 'notifications-outline'} size={26} color={Colors.primary} />
+          <Ionicons
+            name={isBellPressed ? "notifications" : "notifications-outline"}
+            size={26}
+            color={Colors.primary}
+          />
         </TouchableOpacity>
       </View>
 
@@ -115,6 +119,27 @@ const Page = () => {
           <Text>Since {user?.createdAt!.toLocaleDateString()}</Text>
         </View>
       )}
+      <Text style={styles.connectText}>Connect with us!</Text>
+      <View style={{ flexDirection: "row", justifyContent: "center", gap: 20, marginTop: 15, marginBottom: 15,}}>
+        <Link href="https://www.facebook.com/profile.php?id=61555494354487">
+          <Ionicons
+            name="logo-facebook"
+            size={24}
+            style={[styles.icons, { marginRight: 20 }]}
+          />
+        </Link>
+        <Link href="https://twitter.com/SkillFolioFbla">
+          <Ionicons
+            name="logo-twitter"
+            size={24}
+            style={[styles.icons, { marginRight: 20 }]}
+          />
+        </Link>
+        <Link href="https://www.instagram.com/skillfoliofbla/">
+          <Ionicons name="logo-instagram" size={24} style={styles.icons} />
+        </Link>
+      </View>
+
       <Link href={"/(modals)/login"} asChild>
         {isSignedIn && (
           <Button
@@ -145,6 +170,12 @@ const styles = StyleSheet.create({
   header: {
     fontFamily: 'mon-b',
     fontSize: 24,
+  },
+  icons: {
+    marginTop: 15,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 20,
   },
   card: {
     backgroundColor: '#fff',
@@ -177,6 +208,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 8,
   },
+  connectText: {
+    textAlign: 'center',
+    fontFamily: "mon-sb",
+    color: "#3B3C43",
+    fontSize: 20,
+  }
 });
 
 

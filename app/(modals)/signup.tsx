@@ -19,6 +19,22 @@ enum Strategy{
 const Page = () => {
 
 const router = useRouter();
+
+  const [formattedNumber, setFormattedNumber] = useState('');
+
+  const handleTextChange = (input: string) => {
+    // Remove non-numeric characters
+    const numericInput = input.replace(/[^0-9]/g, '');
+
+    // Add spaces after each digit
+    const formattedInput = numericInput
+      .slice(0, 6) // Limit to 6 digits
+      .split('')
+      .map((char, index) => (index === 5 ? char : char + ' '))
+      .join('');
+
+    setFormattedNumber(formattedInput);
+}
   
   const { startOAuthFlow: googleAuth } = useOAuth({ strategy: 'oauth_google' });
   const { startOAuthFlow: appleAuth } = useOAuth({ strategy: 'oauth_apple' });
@@ -161,17 +177,22 @@ const router = useRouter();
         <>
           <View>
             <TextInput
+              placeholder="000000"
+              keyboardType="numeric"
+              maxLength={7}
               value={code}
-              placeholder="Code..."
               style={[defaultStyles.inputField, { marginBottom: 30 }]}
               onChangeText={setCode}
             />
           </View>
-            <TouchableOpacity style={styles.btnOutline}>
-              <Link href="./(tabs)/profile">
-                <Text style={styles.btnOutlineText} onPress={onPressVerify}> Verify Email </Text>
-              </Link>
-            </TouchableOpacity>
+          <TouchableOpacity style={styles.btnOutline}>
+            <Link href="./(tabs)/profile">
+              <Text style={styles.btnOutlineText} onPress={onPressVerify}>
+                {" "}
+                Verify Email{" "}
+              </Text>
+            </Link>
+          </TouchableOpacity>
         </>
       )}
 
@@ -243,6 +264,11 @@ const router = useRouter();
             }}
           />
         </View>
+        <TouchableOpacity style={styles.btnOutline}>
+          <Link href="./login">
+            <Text style={styles.btnOutlineText}>                       Return to Log In                            </Text>
+          </Link>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -320,14 +346,14 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     backgroundColor: "#fff",
     marginBottom: 30,
-    overflow: "hidden", // Ensure the border radius is applied
+    overflow: "hidden", 
   },
   passwordInput: {
     flex: 1,
     height: 44,
     fontSize: 14,
-    color: "black", // Set the text color to your preference
-    padding: 10, // Adjusted padding to prevent touching the edges
+    color: "black",
+    padding: 10,
   },
   eyeIconContainer: {
     padding: 10,

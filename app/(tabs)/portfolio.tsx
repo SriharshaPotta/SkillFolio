@@ -4,10 +4,20 @@ import { FontAwesome5, Ionicons, MaterialCommunityIcons } from '@expo/vector-ico
 import { Swipeable } from "react-native-gesture-handler";
 import { printToFileAsync} from 'expo-print';
 import { shareAsync } from 'expo-sharing';
-import { ImageFilter } from "react-native-image-filter-kit";
-import { getFirstName } from "./profile";
+import { addDoc, collection, deleteDoc, doc } from 'firebase/firestore';
+import { FIRESTORE_DB } from '../../firebaseConfig';
+import { useAuth, useUser } from "@clerk/clerk-expo";
 
 const Portfolio = () => {
+
+let achievementsachievementIDs = new Array();
+
+  const{ signOut, isSignedIn } = useAuth();
+  const{ user }= useUser();
+  const[firstName, setFirstName] =useState(user?.firstName);
+  const[lastName, setLastName] = useState(user?.lastName);
+  const[email, setEmail] = useState(user?.emailAddresses[0].emailAddress);
+
 
   let generatePdf = async () => {
     // Create the HTML content dynamically using user data
@@ -72,38 +82,31 @@ const Portfolio = () => {
 
   const swipeableRef = useRef(null);
  
+
   const [achievements, setAchievements] = useState([
-    // Initial dummy data for achievements
-    { id: 1, title: 'Honor Roll', description: 'Achieved honor roll in the first semester.' },
-    { id: 2, title: 'Math Olympiad', description: 'Participated in the regional Math Olympiad.' },
+    { id: 1, title: 'Honor Roll', description: 'Achieved honor roll in the first semester.', firebaseId: '' },
+    { id: 2, title: 'Math Olympiad', description: 'Participated in the regional Math Olympiad.', firebaseId: '' },
   ]);
   const [athletics, setAthletics] = useState([
-    // Initial dummy data for achievements
-    { id: 1, title: 'Gym', description: 'Stuff :(' },
-    { id: 2, title: 'More Gym', description: 'More Stuff :(' },
+    { id: 1, title: "Gym", description: "Stuff :(", firebaseId: "" },
+    { id: 2, title: "More Gym", description: "More Stuff :(", firebaseId: "" },
   ]);
   const [arts, setArts] = useState([
-    // Initial dummy data for achievements
-    {id: 1, title: "Painting", description: "Lona Misa."},
-    {id: 2, title: "Other Painting", description: "Gan Vogh."},
+    { id: 1, title: "Painting", description: "Lona Misa.", firebaseId: "" },
+    { id: 2, title: "Other Painting", description: "Gan Vogh." , firebaseId: '' },
   ]);
   const [clubs, setClubs] = useState([
-    // Initial dummy data for achievements
-    {id: 1, title: "Not FBLA", description: "why am i doing this."},
-    {id: 2, title: "Not Science Olypiad", description: "bruh."},
+    {id: 1, title: "Not FBLA", description: "why am i doing this.", firebaseId: '' },
+    {id: 2, title: "Not Science Olypiad", description: "bruh.", firebaseId: '' },
   ]);
   const [services, setServices] = useState([
-    // Initial dummy data for achievements
-    {id: 1, title: "Help", description: "ME."},
-    {id: 2, title: "Help", description: "Others."},
+    { id: 1, title: "Help", description: "ME.", firebaseId: "" },
+    { id: 2, title: "Help", description: "Others.", firebaseId: "" },
   ]);
   const [honors, setHonors] = useState([
-    // Initial dummy data for achievements
-    {id: 1, title: "AP BIO", description: "fun"},
-    {id: 2, title: "CALC", description: "umm"},
+    { id: 1, title: "AP BIO", description: "fun", firebaseId: "" },
+    { id: 2, title: "CALC", description: "umm", firebaseId: "" },
   ]);
-
-  const firstName = getFirstName();
 
   const [isAddAchievementModalVisible, setAddAchievementModalVisible] = useState(false);
   const [isAddAthleticModalVisible, setAddAthleticModalVisible] = useState(false);
@@ -141,46 +144,88 @@ const Portfolio = () => {
     setAddHonorModalVisible(!isAddHonorModalVisible);
   };
 
-
 // ADD
-  const addAchievement = () => {
+  const userCollection = collection(FIRESTORE_DB, "users");
+  const userDocRef = doc(userCollection, user?.id);
+
+
+  const addAchievement = async () => {
     if (newAchievement.title && newAchievement.description) {
-      setAchievements([...achievements, { id: achievements.length + 1, ...newAchievement }]);
+      const achievementData = {
+        title: newAchievement.title,
+        description: newAchievement.description,
+      };
+      const achievementDocRef = await addDoc(collection(userDocRef, "achievements"), achievementData);
+      const firebaseId = achievementDocRef.id;
+
+      setAchievements([...achievements, { id: achievements.length + 1, firebaseId, ...achievementData }]);
       setNewAchievement({ title: '', description: '' });
       toggleAddAchievementModal();
     }
   };
-  const addAthletic = () => {
+  const addAthletic = async () => {
     if (newAthletic.title && newAthletic.description) {
-      setAthletics([...athletics, { id: athletics.length + 1, ...newAthletic}]);
+      const athleticData = {
+        title: newAthletic.title,
+        description: newAthletic.description,
+      };
+      const athleticDocRef = await addDoc(collection(userDocRef, "athletics"), athleticData);
+      const firebaseId = athleticDocRef.id;
+
+      setAthletics([...athletics, { id: athletics.length + 1, firebaseId, ...athleticData }]);
       setNewAthletic({ title: '', description: '' });
       toggleAddAthleticModal();
     }
   };
-  const addArt = () => {
+  const addArt = async () => {
     if (newArt.title && newArt.description) {
-      setArts([...arts, { id: arts.length + 1, ...newArt }]);
-      setNewArt({ title: "", description: "" });
+      const artData = {
+        title: newArt.title,
+        description: newArt.description,
+      };
+      const artDocRef = await addDoc(collection(userDocRef, "arts"), artData);
+      const firebaseId = artDocRef.id;
+
+      setArts([...arts, { id: arts.length + 1, firebaseId, ...artData }]);
+      setNewArt({ title: '', description: '' });
       toggleAddArtModal();
     }
   };
-  const addClub = () => {
+  const addClub = async () => {
     if (newClub.title && newClub.description) {
-      setClubs([...clubs, { id: clubs.length + 1, ...newClub }]);
-      setNewClub({ title: "", description: "" });
+      const clubData = {
+        title: newClub.title,
+        description: newClub.description,
+      };
+      const clubDocRef = await addDoc(collection(userDocRef, "clubs"), clubData);
+      const firebaseId = clubDocRef.id;
+
+      setClubs([...clubs, { id: clubs.length + 1, firebaseId, ...clubData }]);
+      setNewClub({ title: '', description: '' });
       toggleAddClubModal();
     }
   };
-  const addService = () => {
+  const addService = async() => {
     if (newService.title && newService.description) {
-      setServices([...services, { id: services.length + 1, ...newService }]);
+      const serviceData = {
+        title: newService.title,
+        description: newService.description,
+      };
+      const serviceDocRef = await addDoc(collection(userDocRef, "services"), serviceData);
+      const firebaseId = serviceDocRef.id;
+
+      setServices([...services,{ id: services.length + 1, firebaseId, ...serviceData },]);
       setNewService({ title: "", description: "" });
       toggleAddServiceModal();
     }
   };
-  const addHonor = () => {
+  const addHonor = async () => {
     if (newHonor.title && newHonor.description) {
-      setHonors([...honors, { id: honors.length + 1, ...newHonor }]);
+      const honorData = {title: newHonor.title, description: newHonor.description,};
+      const honorDocRef = await addDoc( collection(userDocRef, "honors"), honorData);
+      const firebaseId = honorDocRef.id;
+
+      setHonors([...honors,{ id: honors.length + 1, firebaseId, ...honorData },]);
       setNewHonor({ title: "", description: "" });
       toggleAddHonorModal();
     }
@@ -188,45 +233,57 @@ const Portfolio = () => {
 
 
   //DELETE
-  const deleteAchievement = (id: number) => {
-    const updatedAchievements = achievements.filter((achievement) => achievement.id !== id);
+  const deleteAchievement = async (localId: number, firebaseId: string) => {
+    const updatedAchievements = achievements.filter((achievement) => achievement.id !== localId);
     setAchievements(updatedAchievements);
+    const achievementDocRef = doc(collection(userDocRef, "achievements"), firebaseId);
+    await deleteDoc(achievementDocRef);
   };
-  const deleteAthletic = (id: number) => {
-    const updatedAthletics = athletics.filter((athletic) => athletic.id !== id);
+  const deleteAthletic = async (localId: number, firebaseId: string) => {
+    const updatedAthletics = athletics.filter((athletic) => athletic.id !== localId);
     setAthletics(updatedAthletics);
+    const athleticDocRef = doc(collection(userDocRef, "athletics"), firebaseId);
+    await deleteDoc(athleticDocRef);
   };
-  const deleteArt = (id: number) => {
-    const updatedArts = arts.filter((art) => art.id !== id);
+  const deleteArt = async (localId: number, firebaseId: string) => {
+    const updatedArts = arts.filter((art) => art.id !== localId);
     setArts(updatedArts);
+    const artDocRef = doc(collection(userDocRef, "arts"), firebaseId);
+    await deleteDoc(artDocRef);
   };
-  const deleteClub = (id: number) => {
-    const updatedClubs = clubs.filter((club) => club.id !== id);
+  const deleteClub = async (localId: number, firebaseId: string) => {
+    const updatedClubs = clubs.filter((club) => club.id !== localId);
     setClubs(updatedClubs);
+    const clubDocRef = doc(collection(userDocRef, "clubs"), firebaseId);
+    await deleteDoc(clubDocRef);
   };
-  const deleteService = (id: number) => {
-    const updatedServices = services.filter((service) => service.id !== id);
+  const deleteService = async (localId: number, firebaseId: string) => {
+    const updatedServices = services.filter((service) => service.id !== localId);
     setServices(updatedServices);
+    const serviceDocRef = doc(collection(userDocRef, "services"), firebaseId);
+    await deleteDoc(serviceDocRef);
   };
-  const deleteHonor = (id: number) => {
-    const updatedHonors = honors.filter((honor) => honor.id !== id);
+  const deleteHonor = async (localId: number, firebaseId: string) => {
+    const updatedHonors = honors.filter((honor) => honor.id !== localId);
     setHonors(updatedHonors);
+    const honorDocRef = doc(collection(userDocRef, "honors"), firebaseId);
+    await deleteDoc(honorDocRef);
   };
 
 
 
 
 // RENDER
-  const renderAchievements = () => {
-    const renderRightActions = (progress: Animated.AnimatedInterpolation<string | number>, dragX: Animated.AnimatedInterpolation<string | number>, index: number) => {
-      const trans = dragX.interpolate({
-        inputRange: [0, 50, 100],
-        outputRange: [0, 0.5, 1],
-      });
-      return (
-        <TouchableOpacity
-          onPress={() => deleteAchievement(achievements[index].id)}
-        >
+const renderAchievements = () => {
+  const renderRightActions = (progress: Animated.AnimatedInterpolation<string | number>, dragX: Animated.AnimatedInterpolation<string | number>, index: number) => {
+    const trans = dragX.interpolate({
+      inputRange: [0, 50, 100],
+      outputRange: [0, 0.5, 1],
+    });
+    return (
+      <TouchableOpacity
+        onPress={() => deleteAchievement(achievements[index].id, achievements[index].firebaseId)}
+      >
           <View style={styles.deleteButton}>
             <Animated.View
               style={{
@@ -277,7 +334,7 @@ const Portfolio = () => {
       });
       return (
         <TouchableOpacity
-          onPress={() => deleteAthletic(athletics[index].id)}
+        onPress={() => deleteAthletic(athletics[index].id, athletics[index].firebaseId)}
         >
           <View style={styles.deleteButton}>
             <Animated.View
@@ -330,7 +387,7 @@ const Portfolio = () => {
       });
       return (
         <TouchableOpacity
-          onPress={() => deleteArt(arts[index].id)}
+        onPress={() => deleteArt(arts[index].id, arts[index].firebaseId)}
         >
           <View style={styles.deleteButton}>
             <Animated.View
@@ -380,7 +437,9 @@ const Portfolio = () => {
       });
       return (
         <TouchableOpacity
-          onPress={() => deleteClub(clubs[index].id)}
+          onPress={() =>
+            deleteClub(clubs[index].id, clubs[index].firebaseId)
+          }
         >
           <View style={styles.deleteButton}>
             <Animated.View
@@ -429,7 +488,7 @@ const Portfolio = () => {
       });
       return (
         <TouchableOpacity
-          onPress={() => deleteService(services[index].id)}
+        onPress={() => deleteService(services[index].id, services[index].firebaseId)}
         >
           <View style={styles.deleteButton}>
             <Animated.View
@@ -478,7 +537,9 @@ const Portfolio = () => {
       });
       return (
         <TouchableOpacity
-          onPress={() => deleteHonor(honors[index].id)}
+          onPress={() =>
+            deleteHonor(honors[index].id, honors[index].firebaseId)
+          }
         >
           <View style={styles.deleteButton}>
             <Animated.View
