@@ -145,7 +145,7 @@ const Page = () => {
           <Button
             title="Log Out"
             onPress={() => signOut()}
-            color={Colors.dark}
+            color={Colors.primary}
           />
         )}
       </Link>
@@ -165,7 +165,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 24
+    padding: 24,
   },
   header: {
     fontFamily: 'mon-b',

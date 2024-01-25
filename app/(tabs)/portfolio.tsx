@@ -1,12 +1,13 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { View,Text,Button,ScrollView,StyleSheet,Modal,TextInput,TouchableOpacity,SafeAreaView, Animated,} from 'react-native';
 import { FontAwesome5, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons'
 import { Swipeable } from "react-native-gesture-handler";
 import { printToFileAsync} from 'expo-print';
 import { shareAsync } from 'expo-sharing';
-import { addDoc, collection, deleteDoc, doc } from 'firebase/firestore';
+import { addDoc, collection, deleteDoc, doc, getDocs, onSnapshot } from 'firebase/firestore';
 import { FIRESTORE_DB } from '../../firebaseConfig';
 import { useAuth, useUser } from "@clerk/clerk-expo";
+import Colors from 'constants/Colors';
 
 const Portfolio = () => {
 
@@ -72,7 +73,7 @@ let achievementsachievementIDs = new Array();
       </html>
     `;
   
-    const file = await printToFileAsync({
+  const file = await printToFileAsync({
       html: html,
       base64: false,
     });
@@ -84,29 +85,30 @@ let achievementsachievementIDs = new Array();
  
 
   const [achievements, setAchievements] = useState([
-    { id: 1, title: 'Honor Roll', description: 'Achieved honor roll in the first semester.', firebaseId: '' },
-    { id: 2, title: 'Math Olympiad', description: 'Participated in the regional Math Olympiad.', firebaseId: '' },
-  ]);
-  const [athletics, setAthletics] = useState([
-    { id: 1, title: "Gym", description: "Stuff :(", firebaseId: "" },
-    { id: 2, title: "More Gym", description: "More Stuff :(", firebaseId: "" },
-  ]);
-  const [arts, setArts] = useState([
-    { id: 1, title: "Painting", description: "Lona Misa.", firebaseId: "" },
-    { id: 2, title: "Other Painting", description: "Gan Vogh." , firebaseId: '' },
-  ]);
-  const [clubs, setClubs] = useState([
-    {id: 1, title: "Not FBLA", description: "why am i doing this.", firebaseId: '' },
-    {id: 2, title: "Not Science Olypiad", description: "bruh.", firebaseId: '' },
-  ]);
-  const [services, setServices] = useState([
-    { id: 1, title: "Help", description: "ME.", firebaseId: "" },
-    { id: 2, title: "Help", description: "Others.", firebaseId: "" },
-  ]);
-  const [honors, setHonors] = useState([
-    { id: 1, title: "AP BIO", description: "fun", firebaseId: "" },
-    { id: 2, title: "CALC", description: "umm", firebaseId: "" },
-  ]);
+    { id: 1, title: 'Academic Excellence', description: 'Achieved academic excellence in the first semester.', firebaseId: '' },
+    { id: 2, title: 'Math Olympiad Participant', description: 'Successfully participated in the regional Math Olympiad.', firebaseId: '' },
+]);
+const [athletics, setAthletics] = useState([
+    { id: 1, title: "Basketball Team", description: "Played as a member of the school basketball team.", firebaseId: "" },
+    { id: 2, title: "Track and Field", description: "Participated in various track and field events.", firebaseId: "" },
+]);
+const [arts, setArts] = useState([
+    { id: 1, title: "Oil Painting", description: "Created beautiful oil paintings inspired by Lona Misa.", firebaseId: "" },
+    { id: 2, title: "Watercolor Art", description: "Explored the art of watercolor painting with themes like Gan Vogh.", firebaseId: '' },
+]);
+const [clubs, setClubs] = useState([
+    {id: 1, title: "Future Business Leaders of America (FBLA)", description: "Active member of FBLA, gaining valuable business insights.", firebaseId: '' },
+    {id: 2, title: "Science Olympiad", description: "Engaged in challenging science competitions and projects.", firebaseId: '' },
+]);
+const [services, setServices] = useState([
+    { id: 1, title: "Community Volunteer", description: "Provided assistance to community members in need.", firebaseId: "" },
+    { id: 2, title: "Tutoring", description: "Offered tutoring services to help fellow students succeed.", firebaseId: "" },
+]);
+const [honors, setHonors] = useState([
+    { id: 1, title: "AP Biology Honors", description: "Successfully completed the challenging AP Biology course.", firebaseId: "" },
+    { id: 2, title: "Calculus Achievement", description: "Achieved excellence in the study of Calculus.", firebaseId: "" },
+]);
+
 
   const [isAddAchievementModalVisible, setAddAchievementModalVisible] = useState(false);
   const [isAddAthleticModalVisible, setAddAthleticModalVisible] = useState(false);
@@ -144,10 +146,54 @@ let achievementsachievementIDs = new Array();
     setAddHonorModalVisible(!isAddHonorModalVisible);
   };
 
+  const [initialDataLoaded, setInitialDataLoaded] = useState(false);
+
+  useEffect(() => {
+    const fetchPortfolioData = async () => {
+      // Fetch portfolio data from Firestore using userDocRef
+      const userAchievementsRef = collection(userDocRef, 'achievements');
+      const userAthleticsRef = collection(userDocRef, 'athletics');
+      const userArtsRef = collection(userDocRef, 'arts');
+      const userClubsRef = collection(userDocRef, 'clubs');
+      const userServicesRef = collection(userDocRef, 'services');
+      const userHonorsRef = collection(userDocRef, 'honors');
+
+      const [achievementsSnapshot, athleticsSnapshot /*, ...otherSnapshots */] = await Promise.all([
+        getDocs(userAchievementsRef),
+        getDocs(userAthleticsRef),
+        getDocs(userArtsRef),
+        getDocs(userClubsRef),
+        getDocs(userServicesRef),
+        getDocs(userHonorsRef),
+      ]);
+
+      const achievementsData = achievementsSnapshot.docs.map((doc: { id: any; data: () => any; }) => ({ id: doc.id, ...doc.data() }));
+      const athleticsData = athleticsSnapshot.docs.map((doc: { id: any; data: () => any; }) => ({ id: doc.id, ...doc.data() }));     
+      const artsData = athleticsSnapshot.docs.map((doc: { id: any; data: () => any; }) => ({ id: doc.id, ...doc.data() }));
+      const clubsData = athleticsSnapshot.docs.map((doc: { id: any; data: () => any; }) => ({ id: doc.id, ...doc.data() }));
+      const servicesData = athleticsSnapshot.docs.map((doc: { id: any; data: () => any; }) => ({ id: doc.id, ...doc.data() }));
+      const honorsData = athleticsSnapshot.docs.map((doc: { id: any; data: () => any; }) => ({ id: doc.id, ...doc.data() }));
+
+
+      // Update state with fetched data
+      setAchievements(achievementsData);
+      setAthletics(athleticsData);
+      setArts(artsData);
+      setClubs(clubsData);
+      setServices(servicesData);
+      setHonors(honorsData);
+
+    };
+
+    if (isSignedIn) {
+      fetchPortfolioData();
+    }
+  }, [isSignedIn]); // Add dependencies as needed
+
+
 // ADD
   const userCollection = collection(FIRESTORE_DB, "users");
   const userDocRef = doc(userCollection, user?.id);
-
 
   const addAchievement = async () => {
     if (newAchievement.title && newAchievement.description) {
@@ -163,6 +209,7 @@ let achievementsachievementIDs = new Array();
       toggleAddAchievementModal();
     }
   };
+  
   const addAthletic = async () => {
     if (newAthletic.title && newAthletic.description) {
       const athleticData = {
@@ -1088,7 +1135,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   generatePDFButton: {
-    backgroundColor: "#e74c3c", // Change the color to a different one
+    backgroundColor: Colors.primary, // Change the color to a different one
     borderRadius: 8, // Make the button more rounded
     flexDirection: "row",
     justifyContent: "center",
@@ -1098,7 +1145,7 @@ const styles = StyleSheet.create({
     width: 200,
   },
   generatePDFButtonText: {
-    color: "#fff", // Use white text for better visibility
+    color: "#fff", 
     fontSize: 16,
     fontFamily: "mon-b",
   },

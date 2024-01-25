@@ -1,15 +1,27 @@
-import { View, Text } from 'react-native'
-import React from 'react'
-import { Link } from 'expo-router'
+import { View, Text, StyleSheet } from 'react-native';
+import React from 'react';
+import { Link } from 'expo-router';
 
 const Page = () => {
   return (
-    <View>
-      <Link href={"/(modals)/login"}>Login</Link>
-      <Link href={"/(modals)/booking"}>Bookings</Link>
-      <Link href={"/listing/1337"}>Listing details</Link>
+    <View style={styles.container}>
+      <Text style={styles.developmentText}>Coming Soon!</Text>
     </View>
-  )
-}
+  );
+};
 
-export default Page
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  developmentText: {
+    fontSize: 35,
+    fontWeight: 'bold',
+    fontFamily: 'mon-sb',
+    marginBottom: 20,
+  },
+});
+
+export default Page;

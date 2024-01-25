@@ -1,4 +1,4 @@
-import { Button, View, Text, StyleSheet, TextInput, TouchableOpacity, Image } from 'react-native'
+import { Button, View, Text, StyleSheet, TextInput, TouchableOpacity, Image, ScrollView } from 'react-native'
 import React, { useState } from 'react'
 import { useWarmUpBrowser } from 'hooks/useWarmUpBrowser';
 import { defaultStyles } from 'constants/styles';
@@ -123,6 +123,7 @@ const router = useRouter();
 
 
   return (
+    <ScrollView>
     <View style={styles.container}>
       <Stack.Screen options={{ headerBackVisible: !pendingVerification }} />
       <Spinner visible={loading} />
@@ -271,6 +272,7 @@ const router = useRouter();
         </TouchableOpacity>
       </View>
     </View>
+    </ScrollView>
   );
 }
 
