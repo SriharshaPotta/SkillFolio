@@ -10,6 +10,7 @@ import { Link } from 'expo-router';
 import Spinner from "react-native-loading-spinner-overlay";
 import { useSignUp } from "@clerk/clerk-expo";
 
+
 enum Strategy{
   Google = 'oauth_google',
   Apple = 'oauth_apple',
@@ -18,7 +19,7 @@ enum Strategy{
 
 const Page = () => {
 
-const router = useRouter();
+  const router = useRouter();
 
   const [formattedNumber, setFormattedNumber] = useState('');
 
@@ -166,7 +167,7 @@ const router = useRouter();
 
           <View style={styles.btn}>
             <Button
-              onPress={pendingVerification ? onPressVerify : onSignUpPress}
+              onPress={pendingVerification ? onPressVerify : onSignUpPress} 
               title={pendingVerification ? "Verify Email" : "Sign Up"}
               color={"#fff"}
             />

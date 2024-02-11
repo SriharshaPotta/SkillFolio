@@ -245,14 +245,15 @@ const styles = StyleSheet.create({
   },
   forgotPasswordContainer: {
     flexDirection: 'row',
-    justifyContent: 'flex-end', 
-    marginTop: 0,
-    marginBottom: 20
+    justifyContent: 'flex-end',
+    marginTop: 10,  
+    marginBottom: 20,
   },
   forgotPasswordText: {
     color: Colors.primary,
-    fontSize: 12,
+    fontSize: 14,  
     fontFamily: 'mon-sb',
+    textDecorationLine: 'underline',
   },
 });  
 

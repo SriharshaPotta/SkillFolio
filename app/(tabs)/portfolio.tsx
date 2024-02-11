@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View,Text,Button,ScrollView,StyleSheet,Modal,TextInput,TouchableOpacity,SafeAreaView, Animated,} from 'react-native';
+import { View,Text,Button,ScrollView,StyleSheet,Modal,TextInput,TouchableOpacity, SafeAreaView, Animated,} from 'react-native';
 import { FontAwesome5, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons'
 import { Swipeable } from "react-native-gesture-handler";
 import { printToFileAsync} from 'expo-print';
@@ -83,8 +83,7 @@ let achievementsachievementIDs = new Array();
 
   const swipeableRef = useRef(null);
  
-
-  const [achievements, setAchievements] = useState([
+const [achievements, setAchievements] = useState([
     { id: 1, title: 'Academic Excellence', description: 'Achieved academic excellence in the first semester.', firebaseId: '' },
     { id: 2, title: 'Math Olympiad Participant', description: 'Successfully participated in the regional Math Olympiad.', firebaseId: '' },
 ]);
@@ -149,8 +148,7 @@ const [honors, setHonors] = useState([
   const [initialDataLoaded, setInitialDataLoaded] = useState(false);
 
   useEffect(() => {
-    const fetchPortfolioData = async () => {
-      // Fetch portfolio data from Firestore using userDocRef
+    const fetchPortfolioData = async () => {      // Fetch portfolio data from Firestore using userDocRef
       const userAchievementsRef = collection(userDocRef, 'achievements');
       const userAthleticsRef = collection(userDocRef, 'athletics');
       const userArtsRef = collection(userDocRef, 'arts');

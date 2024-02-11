@@ -120,7 +120,15 @@ const Page = () => {
         </View>
       )}
       <Text style={styles.connectText}>Connect with us!</Text>
-      <View style={{ flexDirection: "row", justifyContent: "center", gap: 20, marginTop: 15, marginBottom: 15,}}>
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "center",
+          gap: 20,
+          marginTop: 15,
+          marginBottom: 15,
+        }}
+      >
         <Link href="https://www.facebook.com/profile.php?id=61555494354487">
           <Ionicons
             name="logo-facebook"
@@ -155,6 +163,23 @@ const Page = () => {
           <Button title="Log in" color={Colors.dark} />
         </Link>
       )}
+      <View style={styles.buttonsContainer}>
+        <View style={styles.buttonLink}>
+          <Link href="/(modals)/terms">
+            <Text> Terms of Service </Text>
+          </Link>
+        </View>
+        <View style={styles.buttonLink}>
+          <Link href="/(modals)/about">
+            <Text> About </Text>
+          </Link>
+        </View>
+        <View style={styles.buttonLink}>
+          <Link href="/(modals)/privacy">
+            <Text> Privacy Policy </Text>
+          </Link>
+        </View>
+      </View>
     </SafeAreaView>
   );
 };
@@ -213,7 +238,19 @@ const styles = StyleSheet.create({
     fontFamily: "mon-sb",
     color: "#3B3C43",
     fontSize: 20,
-  }
+  },
+  buttonsContainer: {
+    flex: 1,
+    justifyContent: 'center', // Center the buttons vertically
+    alignItems: 'center', // Center the buttons horizontally
+  },
+  buttonLink: {
+    marginTop: 10, // Add some space between buttons
+    width: '80%', // Adjust button width
+  },
+  buttonText: {
+    fontFamily: 'mon', // Set fontFamily to 'mon'
+  },
 });
 
 

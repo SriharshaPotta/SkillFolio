@@ -1,16 +1,19 @@
-import { View, StyleSheet, TextInput, Button } from "react-native";
+import { View, StyleSheet, TextInput, Button, TouchableOpacity, Text } from "react-native";
 import React, { useState } from "react";
-import { Stack } from "expo-router";
+import { Stack, router, useNavigation } from "expo-router";
 import { useSignIn } from "@clerk/clerk-expo";
+import { Ionicons } from '@expo/vector-icons';
+import Colors from 'constants/Colors';
 
 const PwReset = () => {
+  const navigation = useNavigation();
   const [emailAddress, setEmailAddress] = useState("");
   const [password, setPassword] = useState("");
   const [code, setCode] = useState("");
   const [successfulCreation, setSuccessfulCreation] = useState(false);
   const { signIn, setActive } = useSignIn();
 
-  // Request a passowrd reset code by email
+  // Request a password reset code by email
   const onRequestReset = async () => {
     try {
       await signIn?.create({
@@ -23,7 +26,6 @@ const PwReset = () => {
     }
   };
 
-
   // Reset the password with the code and the new password
   const onReset = async () => {
     try {
@@ -34,6 +36,7 @@ const PwReset = () => {
       });
       console.log(result);
       alert("Password reset successfully");
+      router.back();
 
       // Set the user session active, which will log in the user automatically
       setActive && (await setActive({ session: result?.createdSessionId }));
@@ -44,23 +47,28 @@ const PwReset = () => {
 
   return (
     <View style={styles.container}>
-      <Stack.Screen options={{ headerBackVisible: !successfulCreation }} />
+      {/* Back Button */}
+      {!successfulCreation && (
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+          <Ionicons name="ios-close" size={32} color={Colors.primary} />
+        </TouchableOpacity>
+      )}
 
       {!successfulCreation && (
         <>
           <TextInput
             autoCapitalize="none"
-            placeholder="simon@galaxies.dev"
+            placeholder="example@example.com"
             value={emailAddress}
             onChangeText={setEmailAddress}
-            style={styles.inputField}
+            style={[styles.inputField, { borderColor: Colors.primary }]}
           />
 
           <Button
             onPress={onRequestReset}
             title="Send Reset Email"
-            color={"#6c47ff"}
-          ></Button>
+            color={Colors.primary}
+          />
         </>
       )}
 
@@ -71,7 +79,7 @@ const PwReset = () => {
               value={code}
               placeholder="Code..."
               placeholderTextColor="#A9A9A9"
-              style={styles.inputField}
+              style={[styles.inputField, { borderColor: Colors.primary }]}
               onChangeText={setCode}
             />
             <TextInput
@@ -80,14 +88,14 @@ const PwReset = () => {
               value={password}
               onChangeText={setPassword}
               secureTextEntry
-              style={styles.inputField}
+              style={[styles.inputField, { borderColor: Colors.primary }]}
             />
           </View>
           <Button
             onPress={onReset}
             title="Set new Password"
-            color={"#6c47ff"}
-          ></Button>
+            color={Colors.primary}
+          />
         </>
       )}
     </View>
@@ -104,14 +112,16 @@ const styles = StyleSheet.create({
     marginVertical: 4,
     height: 50,
     borderWidth: 1,
-    borderColor: "#6c47ff",
     borderRadius: 4,
     padding: 10,
+    fontFamily: "mon",
     backgroundColor: "#fff",
   },
-  button: {
-    margin: 8,
-    alignItems: "center",
+  backButton: {
+    position: 'absolute',
+    top: 20,
+    left: 20,
+    padding: 10,
   },
 });
 
