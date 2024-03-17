@@ -55,7 +55,7 @@ const Page = () => {
 
       if (createdSessionId) {
         setActive!({ session: createdSessionId });
-        router.push('/(tabs)/profile');
+        router.push('/(modals)/onboarding');
       }
     } catch (err) {
       console.error('OAuth error ', err);
@@ -115,7 +115,7 @@ const Page = () => {
         alert(err.errors[0].message);
       } finally {
         setLoading(false);
-        router.push('/(tabs)/profile');
+        router.push("/(modals)/onboarding");
       }
     };
 
@@ -125,130 +125,79 @@ const Page = () => {
 
   return (
     <ScrollView>
-    <View style={styles.container}>
-      <Stack.Screen options={{ headerBackVisible: !pendingVerification }} />
-      <Spinner visible={loading} />
-      <View>
-        <Image source={require("./appLogo.png")} style={styles.image} />
-        <Text style={styles.headtext}>Sign Up</Text>
-      </View>
-      {!pendingVerification && (
-        <>
-          <TextInput
-            autoCapitalize="none"
-            placeholder="Email"
-            placeholderTextColor="#A9A9A9"
-            value={emailAddress}
-            onChangeText={setEmailAddress}
-            style={[defaultStyles.inputField, { marginBottom: 30 }]}
-          />
-          <View style={styles.passwordInputContainer}>
+      <View style={styles.container}>
+        <Stack.Screen options={{ headerBackVisible: !pendingVerification }} />
+        <Spinner visible={loading} />
+        <View>
+          <Image source={require("./appLogo.png")} style={styles.image} />
+          <Text style={styles.headtext}>Sign Up</Text>
+        </View>
+        {!pendingVerification && (
+          <>
             <TextInput
               autoCapitalize="none"
-              placeholder="Password"
+              placeholder="Email"
               placeholderTextColor="#A9A9A9"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry={!showPassword}
-              style={styles.passwordInput}
-            />
-            {/* Eye icon to toggle password visibility */}
-            <TouchableOpacity
-              style={styles.eyeIconContainer}
-              onPress={() => setShowPassword(!showPassword)}
-            >
-              <Ionicons
-                name={showPassword ? "ios-eye-off" : "ios-eye"}
-                size={24}
-                color={Colors.primary}
-              />
-            </TouchableOpacity>
-          </View>
-
-          <View style={styles.btn}>
-            <Button
-              onPress={pendingVerification ? onPressVerify : onSignUpPress} 
-              title={pendingVerification ? "Verify Email" : "Sign Up"}
-              color={"#fff"}
-            />
-          </View>
-        </>
-      )}
-
-      {pendingVerification && (
-        <>
-          <View>
-            <TextInput
-              placeholder="000000"
-              keyboardType="numeric"
-              maxLength={7}
-              value={code}
+              value={emailAddress}
+              onChangeText={setEmailAddress}
               style={[defaultStyles.inputField, { marginBottom: 30 }]}
-              onChangeText={setCode}
             />
-          </View>
-          <TouchableOpacity style={styles.btnOutline}>
-            <Link href="./(tabs)/profile">
-              <Text style={styles.btnOutlineText} onPress={onPressVerify}>
-                {" "}
-                Verify Email{" "}
-              </Text>
-            </Link>
-          </TouchableOpacity>
-        </>
-      )}
+            <View style={styles.passwordInputContainer}>
+              <TextInput
+                autoCapitalize="none"
+                placeholder="Password"
+                placeholderTextColor="#A9A9A9"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry={!showPassword}
+                style={styles.passwordInput}
+              />
+              {/* Eye icon to toggle password visibility */}
+              <TouchableOpacity
+                style={styles.eyeIconContainer}
+                onPress={() => setShowPassword(!showPassword)}
+              >
+                <Ionicons
+                  name={showPassword ? "ios-eye-off" : "ios-eye"}
+                  size={24}
+                  color={Colors.primary}
+                />
+              </TouchableOpacity>
+            </View>
 
-      <View style={styles.seperatorView}>
-        <View
-          style={{
-            flex: 1,
-            borderBottomColor: "#000",
-            borderBottomWidth: StyleSheet.hairlineWidth,
-          }}
-        />
-        <Text style={styles.seperator}>or</Text>
-        <View
-          style={{
-            flex: 1,
-            borderBottomColor: "#000",
-            borderBottomWidth: StyleSheet.hairlineWidth,
-          }}
-        />
-      </View>
-      <View style={{ gap: 20 }}>
-        <TouchableOpacity
-          style={styles.btnOutline}
-          onPress={() => onSelectAuth(Strategy.Apple)}
-        >
-          <Ionicons
-            name="md-logo-apple"
-            size={24}
-            style={defaultStyles.btnIcon}
-          />
-          <Text style={styles.btnOutlineText}>Continue with Apple</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.btnOutline}
-          onPress={() => onSelectAuth(Strategy.Google)}
-        >
-          <Ionicons
-            name="md-logo-google"
-            size={24}
-            style={defaultStyles.btnIcon}
-          />
-          <Text style={styles.btnOutlineText}>Continue with Google</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.btnOutline}
-          onPress={() => onSelectAuth(Strategy.Facebook)}
-        >
-          <Ionicons
-            name="md-logo-facebook"
-            size={24}
-            style={defaultStyles.btnIcon}
-          />
-          <Text style={styles.btnOutlineText}>Continue with Facebook</Text>
-        </TouchableOpacity>
+            <View style={styles.btn}>
+              <Button
+                onPress={pendingVerification ? onPressVerify : onSignUpPress}
+                title={pendingVerification ? "Verify Email" : "Sign Up"}
+                color={"#fff"}
+              />
+            </View>
+          </>
+        )}
+
+        {pendingVerification && (
+          <>
+            <View>
+              <TextInput
+                placeholder="000000"
+                keyboardType="numeric"
+                maxLength={7}
+                value={code}
+                style={[defaultStyles.inputField, { marginBottom: 30 }]}
+                onChangeText={setCode}
+              />
+            </View>
+            <TouchableOpacity style={styles.btnOutline}>
+              <Link href="/(modals)/onboarding">
+                <Text style={styles.btnOutlineText} onPress={onPressVerify}>
+                  {" "}
+                  Verify Email{" "}
+                </Text>
+              </Link>
+            </TouchableOpacity>
+          </>
+        )}
+
         <View style={styles.seperatorView}>
           <View
             style={{
@@ -266,13 +215,64 @@ const Page = () => {
             }}
           />
         </View>
-        <TouchableOpacity style={styles.btnOutline}>
-          <Link href="./login">
-            <Text style={styles.btnOutlineText}>                       Return to Log In                            </Text>
-          </Link>
-        </TouchableOpacity>
+        <View style={{ gap: 20 }}>
+          <TouchableOpacity
+            style={styles.btnOutline}
+            onPress={() => onSelectAuth(Strategy.Apple)}
+          >
+            <Ionicons
+              name="md-logo-apple"
+              size={24}
+              style={defaultStyles.btnIcon}
+            />
+            <Text style={styles.btnOutlineText}>Continue with Apple</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.btnOutline}
+            onPress={() => onSelectAuth(Strategy.Google)}
+          >
+            <Ionicons
+              name="md-logo-google"
+              size={24}
+              style={defaultStyles.btnIcon}
+            />
+            <Text style={styles.btnOutlineText}>Continue with Google</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.btnOutline}
+            onPress={() => onSelectAuth(Strategy.Facebook)}
+          >
+            <Ionicons
+              name="md-logo-facebook"
+              size={24}
+              style={defaultStyles.btnIcon}
+            />
+            <Text style={styles.btnOutlineText}>Continue with Facebook</Text>
+          </TouchableOpacity>
+          <View style={styles.seperatorView}>
+            <View
+              style={{
+                flex: 1,
+                borderBottomColor: "#000",
+                borderBottomWidth: StyleSheet.hairlineWidth,
+              }}
+            />
+            <Text style={styles.seperator}>or</Text>
+            <View
+              style={{
+                flex: 1,
+                borderBottomColor: "#000",
+                borderBottomWidth: StyleSheet.hairlineWidth,
+              }}
+            />
+          </View>
+          <TouchableOpacity style={styles.btnOutline}>
+            <Link href="./login">
+              <Text style={styles.btnOutlineText}> Return to Log In </Text>
+            </Link>
+          </TouchableOpacity>
+        </View>
       </View>
-    </View>
     </ScrollView>
   );
 }

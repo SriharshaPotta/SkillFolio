@@ -163,20 +163,31 @@ const Page = () => {
           <Button title="Log in" color={Colors.dark} />
         </Link>
       )}
+
       <View style={styles.buttonsContainer}>
         <View style={styles.buttonLink}>
           <Link href="/(modals)/terms">
-            <Text> Terms of Service </Text>
+            <Text style={styles.buttonText}> Terms of Service </Text>
           </Link>
         </View>
         <View style={styles.buttonLink}>
           <Link href="/(modals)/about">
-            <Text> About </Text>
+            <Text style={styles.buttonText}> About </Text>
           </Link>
         </View>
         <View style={styles.buttonLink}>
           <Link href="/(modals)/privacy">
-            <Text> Privacy Policy </Text>
+            <Text style={styles.buttonText}> Privacy Policy </Text>
+          </Link>
+        </View>
+        <View style={styles.buttonLink2}>
+          <Link href="/(modals)/onboarding">
+            <Text style={styles.buttonText2}> Help </Text>
+          </Link>
+        </View>
+        <View style={styles.buttonLink}>
+          <Link href="/(modals)/report">
+            <Text style={styles.buttonText2}> Report an Issue </Text>
           </Link>
         </View>
       </View>
@@ -245,11 +256,23 @@ const styles = StyleSheet.create({
     alignItems: 'center', // Center the buttons horizontally
   },
   buttonLink: {
-    marginTop: 10, // Add some space between buttons
-    width: '80%', // Adjust button width
+    marginTop: 10,
+    width: '80%', 
+    alignItems: 'center',
+  },
+  buttonLink2: {
+    marginTop: 60,
+    width: '80%', 
+    alignItems: 'center',
   },
   buttonText: {
-    fontFamily: 'mon', // Set fontFamily to 'mon'
+    fontFamily: 'mon', 
+    fontSize: 16,
+  },
+  buttonText2: {
+    fontFamily: 'mon-sb', 
+    fontSize: 16,
+    color: "black",
   },
 });
 

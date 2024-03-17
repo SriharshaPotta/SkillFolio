@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, ScrollView, SafeAreaView, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, SafeAreaView, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Link } from 'expo-router';
 
@@ -7,6 +7,9 @@ const PrivacyPolicyPage = () => {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView>
+        <Link href="/(tabs)/profile" style={styles.closeButton}>
+          <Ionicons name="ios-arrow-back" size={24} color="black" />
+        </Link>
         <View>
           <Text style={styles.title}>Privacy Policy</Text>
           <Text style={styles.content}>
@@ -71,10 +74,7 @@ const PrivacyPolicyPage = () => {
             privacy policies of any third-party websites you visit.
           </Text>
 
-          {/* Back Button */}
-          <Link href="/(tabs)/profile">
-            <Ionicons name="ios-close" size={30} color="black" style={styles.closeButton} />
-          </Link>
+          
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -84,31 +84,63 @@ const PrivacyPolicyPage = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "white",
     padding: 16,
+    paddingHorizontal: 20,
+    borderWidth: 2,
+    borderColor: "white",
+  },
+  contentContainer: {
+    marginBottom: 50,
   },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
+    fontSize: 28,
+    fontWeight: "bold",
     marginBottom: 16,
+    textAlign: "center",
+    color: "black",
   },
   content: {
-    fontSize: 16,
+    fontSize: 12,
     marginBottom: 16,
+    color: "black",
+    marginRight: 16,
+    marginLeft: 16,
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 20,
+    fontWeight: "bold",
     marginTop: 12,
+    color: "red",
+    marginRight: 16,
+    marginLeft: 10,
+    marginBottom: 10,
   },
   subSectionTitle: {
-    fontWeight: 'bold',
+    fontSize: 17,
+    fontWeight: "bold",
+    marginTop: 12,
+    color: "black",
+    marginRight: 16,
+    marginLeft: 10,
+    marginBottom: 10,
   },
   sectionContent: {
-    fontSize: 16,
+    fontSize: 12,
     marginBottom: 8,
+    color: "black",
+    marginRight: 16,
+    marginLeft: 22,
   },
   closeButton: {
-    marginTop: 20,
+    position: "absolute",
+    top: 2,
+    left: 16,
+    color: "red",
+    zIndex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
   },
 });
 

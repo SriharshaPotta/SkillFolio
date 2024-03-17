@@ -7,6 +7,9 @@ const AboutPage = () => {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView>
+        <Link href="/(tabs)/profile" style={styles.closeButton}>
+          <Ionicons name="ios-arrow-back" size={24} color="black" />
+        </Link>
         <View>
           <Text style={styles.title}>About SkillFolio</Text>
           <Text style={styles.content}>
@@ -25,9 +28,6 @@ const AboutPage = () => {
             {"\n"}- Built-in sharing options for easy distribution of the portfolio
             {"\n"}- Push notifications
           </Text>
-
-          <Text style={styles.sectionTitle}>Folder Layout</Text>
-          <Text style={styles.sectionContent}>/Modals</Text>
 
           <Text style={styles.sectionTitle}>Tools and Technologies</Text>
           <Text style={styles.sectionContent}>
@@ -58,47 +58,78 @@ const AboutPage = () => {
 
         <Text style={styles.thankYou}>Thank you for choosing SkillFolio!</Text>
         </View>
-        <Link href="/(tabs)/profile">
-            <Ionicons name="ios-close" size={30} color="black" style={styles.closeButton} />
-        </Link>
-        </ScrollView>
-        </SafeAreaView>
+      </ScrollView>
+    </SafeAreaView>
 );
 };
 
 const styles = StyleSheet.create({
-container: {
-flex: 1,
-padding: 16,
-},
-title: {
-fontSize: 24,
-fontFamily: 'mon-b',
-marginBottom: 16,
-},
-content: {
-fontSize: 16,
-marginBottom: 16,
-},
-sectionTitle: {
-fontSize: 20,
-fontFamily: 'mon-b',
-marginTop: 16,
-marginBottom: 8,
-},
-sectionContent: {
-fontSize: 16,
-marginBottom: 16,
-},
-thankYou: {
-fontSize: 18,
-fontFamily: 'mon-sb',
-textAlign: 'center',
-marginTop: 16,
-},
-closeButton: {
-  marginTop: 20,
-},
+  container: {
+    flex: 1,
+    backgroundColor: "white",
+    padding: 16,
+    paddingHorizontal: 20,
+    borderWidth: 2,
+    borderColor: "white",
+  },
+  contentContainer: {
+    marginBottom: 50,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: "bold",
+    marginBottom: 16,
+    textAlign: "center",
+    color: "black",
+  },
+  content: {
+    fontSize: 12,
+    marginBottom: 16,
+    color: "black",
+    marginRight: 16,
+    marginLeft: 16,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginTop: 12,
+    color: "red",
+    marginRight: 16,
+    marginLeft: 10,
+    marginBottom: 10,
+  },
+  subSectionTitle: {
+    fontSize: 17,
+    fontWeight: "bold",
+    marginTop: 12,
+    color: "black",
+    marginRight: 16,
+    marginLeft: 10,
+    marginBottom: 10,
+  },
+  sectionContent: {
+    fontSize: 12,
+    marginBottom: 8,
+    color: "black",
+    marginRight: 16,
+    marginLeft: 22,
+  },
+  closeButton: {
+    position: "absolute",
+    top: 2,
+    left: 16,
+    color: "red",
+    zIndex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
+  },
+  thankYou: {
+    fontSize: 18,
+    fontFamily: 'mon-sb',
+    textAlign: 'center',
+    marginTop: 16,
+    },
 });
 
 export default AboutPage;

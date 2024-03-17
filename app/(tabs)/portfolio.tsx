@@ -1,24 +1,48 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { View,Text,Button,ScrollView,StyleSheet,Modal,TextInput,TouchableOpacity, SafeAreaView, Animated,} from 'react-native';
-import { FontAwesome5, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons'
+import React, { useEffect, useRef, useState } from "react";
+import {
+  View,
+  Text,
+  Button,
+  ScrollView,
+  StyleSheet,
+  Modal,
+  TextInput,
+  TouchableOpacity,
+  SafeAreaView,
+  Animated,
+} from "react-native";
+import {
+  FontAwesome5,
+  Ionicons,
+  MaterialCommunityIcons,
+} from "@expo/vector-icons";
 import { Swipeable } from "react-native-gesture-handler";
-import { printToFileAsync} from 'expo-print';
-import { shareAsync } from 'expo-sharing';
-import { addDoc, collection, deleteDoc, doc, getDocs, onSnapshot } from 'firebase/firestore';
-import { FIRESTORE_DB } from '../../firebaseConfig';
+import { printToFileAsync } from "expo-print";
+import { shareAsync } from "expo-sharing";
+import {
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  getDocs,
+  onSnapshot,
+} from "firebase/firestore";
+import { FIRESTORE_DB} from "../../firebaseConfig";
 import { useAuth, useUser } from "@clerk/clerk-expo";
-import Colors from 'constants/Colors';
+import Colors from "constants/Colors";
+import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import { Video } from "expo-av";
+import { jsPDF } from "jspdf";
 
 const Portfolio = () => {
 
-let achievementsachievementIDs = new Array();
+  let achievementsachievementIDs = new Array();
 
-  const{ signOut, isSignedIn } = useAuth();
-  const{ user }= useUser();
-  const[firstName, setFirstName] =useState(user?.firstName);
-  const[lastName, setLastName] = useState(user?.lastName);
-  const[email, setEmail] = useState(user?.emailAddresses[0].emailAddress);
-
+  const { signOut, isSignedIn } = useAuth();
+  const { user } = useUser();
+  const [firstName, setFirstName] = useState(user?.firstName);
+  const [lastName, setLastName] = useState(user?.lastName);
+  const [email, setEmail] = useState(user?.emailAddresses[0].emailAddress);
 
   let generatePdf = async () => {
     // Create the HTML content dynamically using user data
@@ -79,52 +103,128 @@ let achievementsachievementIDs = new Array();
     });
     await shareAsync(file.uri);
   };
-  
 
   const swipeableRef = useRef(null);
- 
-const [achievements, setAchievements] = useState([
-    { id: 1, title: 'Academic Excellence', description: 'Achieved academic excellence in the first semester.', firebaseId: '' },
-    { id: 2, title: 'Math Olympiad Participant', description: 'Successfully participated in the regional Math Olympiad.', firebaseId: '' },
-]);
-const [athletics, setAthletics] = useState([
-    { id: 1, title: "Basketball Team", description: "Played as a member of the school basketball team.", firebaseId: "" },
-    { id: 2, title: "Track and Field", description: "Participated in various track and field events.", firebaseId: "" },
-]);
-const [arts, setArts] = useState([
-    { id: 1, title: "Oil Painting", description: "Created beautiful oil paintings inspired by Lona Misa.", firebaseId: "" },
-    { id: 2, title: "Watercolor Art", description: "Explored the art of watercolor painting with themes like Gan Vogh.", firebaseId: '' },
-]);
-const [clubs, setClubs] = useState([
-    {id: 1, title: "Future Business Leaders of America (FBLA)", description: "Active member of FBLA, gaining valuable business insights.", firebaseId: '' },
-    {id: 2, title: "Science Olympiad", description: "Engaged in challenging science competitions and projects.", firebaseId: '' },
-]);
-const [services, setServices] = useState([
-    { id: 1, title: "Community Volunteer", description: "Provided assistance to community members in need.", firebaseId: "" },
-    { id: 2, title: "Tutoring", description: "Offered tutoring services to help fellow students succeed.", firebaseId: "" },
-]);
-const [honors, setHonors] = useState([
-    { id: 1, title: "AP Biology Honors", description: "Successfully completed the challenging AP Biology course.", firebaseId: "" },
-    { id: 2, title: "Calculus Achievement", description: "Achieved excellence in the study of Calculus.", firebaseId: "" },
-]);
 
+  const [achievements, setAchievements] = useState([
+    {
+      id: 1,
+      title: "Academic Excellence",
+      description: "Achieved academic excellence in the first semester.",
+      firebaseId: "",
+    },
+    {
+      id: 2,
+      title: "Math Olympiad Participant",
+      description: "Successfully participated in the regional Math Olympiad.",
+      firebaseId: "",
+    },
+  ]);
+  const [athletics, setAthletics] = useState([
+    {
+      id: 1,
+      title: "Basketball Team",
+      description: "Played as a member of the school basketball team.",
+      firebaseId: "",
+    },
+    {
+      id: 2,
+      title: "Track and Field",
+      description: "Participated in various track and field events.",
+      firebaseId: "",
+    },
+  ]);
+  const [arts, setArts] = useState([
+    {
+      id: 1,
+      title: "Oil Painting",
+      description: "Created beautiful oil paintings inspired by Lona Misa.",
+      firebaseId: "",
+    },
+    {
+      id: 2,
+      title: "Watercolor Art",
+      description:
+        "Explored the art of watercolor painting with themes like Gan Vogh.",
+      firebaseId: "",
+    },
+  ]);
+  const [clubs, setClubs] = useState([
+    {
+      id: 1,
+      title: "Future Business Leaders of America (FBLA)",
+      description: "Active member of FBLA, gaining valuable business insights.",
+      firebaseId: "",
+    },
+    {
+      id: 2,
+      title: "Science Olympiad",
+      description: "Engaged in challenging science competitions and projects.",
+      firebaseId: "",
+    },
+  ]);
+  const [services, setServices] = useState([
+    {
+      id: 1,
+      title: "Community Volunteer",
+      description: "Provided assistance to community members in need.",
+      firebaseId: "",
+    },
+    {
+      id: 2,
+      title: "Tutoring",
+      description: "Offered tutoring services to help fellow students succeed.",
+      firebaseId: "",
+    },
+  ]);
+  const [honors, setHonors] = useState([
+    {
+      id: 1,
+      title: "AP Biology Honors",
+      description: "Successfully completed the challenging AP Biology course.",
+      firebaseId: "",
+    },
+    {
+      id: 2,
+      title: "Calculus Achievement",
+      description: "Achieved excellence in the study of Calculus.",
+      firebaseId: "",
+    },
+  ]);
 
-  const [isAddAchievementModalVisible, setAddAchievementModalVisible] = useState(false);
-  const [isAddAthleticModalVisible, setAddAthleticModalVisible] = useState(false);
+  const [isAddAchievementModalVisible, setAddAchievementModalVisible] =
+    useState(false);
+  const [isAddAthleticModalVisible, setAddAthleticModalVisible] =
+    useState(false);
   const [isAddArtModalVisible, setAddArtModalVisible] = useState(false);
   const [isAddClubModalVisible, setAddClubModalVisible] = useState(false);
   const [isAddServiceModalVisible, setAddServiceModalVisible] = useState(false);
   const [isAddHonorModalVisible, setAddHonorModalVisible] = useState(false);
 
-
-  const [newAchievement, setNewAchievement] = useState({ title: '', description: '' });
-  const [newAthletic, setNewAthletic] = useState({title: '', description: ''});
-  const [newArt, setNewArt] = useState({title: '', description: '' });
-  const [newClub, setNewClub] = useState({title: '', description: '' });
-  const [newService, setNewService] = useState({title: '', description: '' });
-  const [newHonor, setNewHonor] = useState({title: '', description: '' });
-
-
+  const [newAchievement, setNewAchievement] = useState({
+    title: "",
+    description: "",
+  });
+  const [newAthletic, setNewAthletic] = useState({
+    title: "",
+    description: "",
+  });
+  const [newArt, setNewArt] = useState({
+    title: "",
+    description: "",
+  });
+  const [newClub, setNewClub] = useState({
+    title: "",
+    description: "",
+  });
+  const [newService, setNewService] = useState({
+    title: "",
+    description: "",
+  });
+  const [newHonor, setNewHonor] = useState({
+    title: "",
+    description: "",
+  });
 
   const toggleAddAchievementModal = () => {
     setAddAchievementModalVisible(!isAddAchievementModalVisible);
@@ -148,30 +248,43 @@ const [honors, setHonors] = useState([
   const [initialDataLoaded, setInitialDataLoaded] = useState(false);
 
   useEffect(() => {
-    const fetchPortfolioData = async () => {      // Fetch portfolio data from Firestore using userDocRef
-      const userAchievementsRef = collection(userDocRef, 'achievements');
-      const userAthleticsRef = collection(userDocRef, 'athletics');
-      const userArtsRef = collection(userDocRef, 'arts');
-      const userClubsRef = collection(userDocRef, 'clubs');
-      const userServicesRef = collection(userDocRef, 'services');
-      const userHonorsRef = collection(userDocRef, 'honors');
+    const fetchPortfolioData = async () => {
+      // Fetch portfolio data from Firestore using userDocRef
+      const userAchievementsRef = collection(userDocRef, "achievements");
+      const userAthleticsRef = collection(userDocRef, "athletics");
+      const userArtsRef = collection(userDocRef, "arts");
+      const userClubsRef = collection(userDocRef, "clubs");
+      const userServicesRef = collection(userDocRef, "services");
+      const userHonorsRef = collection(userDocRef, "honors");
 
-      const [achievementsSnapshot, athleticsSnapshot /*, ...otherSnapshots */] = await Promise.all([
-        getDocs(userAchievementsRef),
-        getDocs(userAthleticsRef),
-        getDocs(userArtsRef),
-        getDocs(userClubsRef),
-        getDocs(userServicesRef),
-        getDocs(userHonorsRef),
-      ]);
+      const [achievementsSnapshot, athleticsSnapshot, artsSnapshot, clubsSnapshot, servicesSnapshot, honorsSnapshot,] =
+        await Promise.all([
+          getDocs(userAchievementsRef),
+          getDocs(userAthleticsRef),
+          getDocs(userArtsRef),
+          getDocs(userClubsRef),
+          getDocs(userServicesRef),
+          getDocs(userHonorsRef),
+        ]);
 
-      const achievementsData = achievementsSnapshot.docs.map((doc: { id: any; data: () => any; }) => ({ id: doc.id, ...doc.data() }));
-      const athleticsData = athleticsSnapshot.docs.map((doc: { id: any; data: () => any; }) => ({ id: doc.id, ...doc.data() }));     
-      const artsData = athleticsSnapshot.docs.map((doc: { id: any; data: () => any; }) => ({ id: doc.id, ...doc.data() }));
-      const clubsData = athleticsSnapshot.docs.map((doc: { id: any; data: () => any; }) => ({ id: doc.id, ...doc.data() }));
-      const servicesData = athleticsSnapshot.docs.map((doc: { id: any; data: () => any; }) => ({ id: doc.id, ...doc.data() }));
-      const honorsData = athleticsSnapshot.docs.map((doc: { id: any; data: () => any; }) => ({ id: doc.id, ...doc.data() }));
-
+      const achievementsData = achievementsSnapshot.docs.map(
+        (doc: { id: any; data: () => any }) => ({ id: doc.id, ...doc.data() })
+      );
+      const athleticsData = athleticsSnapshot.docs.map(
+        (doc: { id: any; data: () => any }) => ({ id: doc.id, ...doc.data() })
+      );
+      const artsData = artsSnapshot.docs.map(
+        (doc: { id: any; data: () => any }) => ({ id: doc.id, ...doc.data() })
+      );
+      const clubsData = clubsSnapshot.docs.map(
+        (doc: { id: any; data: () => any }) => ({ id: doc.id, ...doc.data() })
+      );
+      const servicesData = servicesSnapshot.docs.map(
+        (doc: { id: any; data: () => any }) => ({ id: doc.id, ...doc.data() })
+      );
+      const honorsData = honorsSnapshot.docs.map(
+        (doc: { id: any; data: () => any }) => ({ id: doc.id, ...doc.data() })
+      );
 
       // Update state with fetched data
       setAchievements(achievementsData);
@@ -180,7 +293,6 @@ const [honors, setHonors] = useState([
       setClubs(clubsData);
       setServices(servicesData);
       setHonors(honorsData);
-
     };
 
     if (isSignedIn) {
@@ -188,8 +300,7 @@ const [honors, setHonors] = useState([
     }
   }, [isSignedIn]); // Add dependencies as needed
 
-
-// ADD
+  // ADD
   const userCollection = collection(FIRESTORE_DB, "users");
   const userDocRef = doc(userCollection, user?.id);
 
@@ -199,26 +310,38 @@ const [honors, setHonors] = useState([
         title: newAchievement.title,
         description: newAchievement.description,
       };
-      const achievementDocRef = await addDoc(collection(userDocRef, "achievements"), achievementData);
+      const achievementDocRef = await addDoc(
+        collection(userDocRef, "achievements"),
+        achievementData
+      );
       const firebaseId = achievementDocRef.id;
 
-      setAchievements([...achievements, { id: achievements.length + 1, firebaseId, ...achievementData }]);
-      setNewAchievement({ title: '', description: '' });
+      setAchievements([
+        ...achievements,
+        { id: achievements.length + 1, firebaseId, ...achievementData },
+      ]);
+      setNewAchievement({ title: "", description: ""});
       toggleAddAchievementModal();
     }
   };
-  
+
   const addAthletic = async () => {
     if (newAthletic.title && newAthletic.description) {
       const athleticData = {
         title: newAthletic.title,
         description: newAthletic.description,
       };
-      const athleticDocRef = await addDoc(collection(userDocRef, "athletics"), athleticData);
+      const athleticDocRef = await addDoc(
+        collection(userDocRef, "athletics"),
+        athleticData
+      );
       const firebaseId = athleticDocRef.id;
 
-      setAthletics([...athletics, { id: athletics.length + 1, firebaseId, ...athleticData }]);
-      setNewAthletic({ title: '', description: '' });
+      setAthletics([
+        ...athletics,
+        { id: athletics.length + 1, firebaseId, ...athleticData },
+      ]);
+      setNewAthletic({ title: "", description: ""});
       toggleAddAthleticModal();
     }
   };
@@ -232,7 +355,7 @@ const [honors, setHonors] = useState([
       const firebaseId = artDocRef.id;
 
       setArts([...arts, { id: arts.length + 1, firebaseId, ...artData }]);
-      setNewArt({ title: '', description: '' });
+      setNewArt({ title: "", description: ""});
       toggleAddArtModal();
     }
   };
@@ -242,50 +365,74 @@ const [honors, setHonors] = useState([
         title: newClub.title,
         description: newClub.description,
       };
-      const clubDocRef = await addDoc(collection(userDocRef, "clubs"), clubData);
+      const clubDocRef = await addDoc(
+        collection(userDocRef, "clubs"),
+        clubData
+      );
       const firebaseId = clubDocRef.id;
 
       setClubs([...clubs, { id: clubs.length + 1, firebaseId, ...clubData }]);
-      setNewClub({ title: '', description: '' });
+      setNewClub({ title: "", description: ""});
       toggleAddClubModal();
     }
   };
-  const addService = async() => {
+  const addService = async () => {
     if (newService.title && newService.description) {
       const serviceData = {
         title: newService.title,
         description: newService.description,
       };
-      const serviceDocRef = await addDoc(collection(userDocRef, "services"), serviceData);
+      const serviceDocRef = await addDoc(
+        collection(userDocRef, "services"),
+        serviceData
+      );
       const firebaseId = serviceDocRef.id;
 
-      setServices([...services,{ id: services.length + 1, firebaseId, ...serviceData },]);
-      setNewService({ title: "", description: "" });
+      setServices([
+        ...services,
+        { id: services.length + 1, firebaseId, ...serviceData },
+      ]);
+      setNewService({ title: "", description: ""});
       toggleAddServiceModal();
     }
   };
   const addHonor = async () => {
     if (newHonor.title && newHonor.description) {
-      const honorData = {title: newHonor.title, description: newHonor.description,};
-      const honorDocRef = await addDoc( collection(userDocRef, "honors"), honorData);
+      const honorData = {
+        title: newHonor.title,
+        description: newHonor.description,
+      };
+      const honorDocRef = await addDoc(
+        collection(userDocRef, "honors"),
+        honorData
+      );
       const firebaseId = honorDocRef.id;
 
-      setHonors([...honors,{ id: honors.length + 1, firebaseId, ...honorData },]);
-      setNewHonor({ title: "", description: "" });
+      setHonors([
+        ...honors,
+        { id: honors.length + 1, firebaseId, ...honorData },
+      ]);
+      setNewHonor({ title: "", description: ""});
       toggleAddHonorModal();
     }
   };
 
-
   //DELETE
   const deleteAchievement = async (localId: number, firebaseId: string) => {
-    const updatedAchievements = achievements.filter((achievement) => achievement.id !== localId);
+    const updatedAchievements = achievements.filter(
+      (achievement) => achievement.id !== localId
+    );
     setAchievements(updatedAchievements);
-    const achievementDocRef = doc(collection(userDocRef, "achievements"), firebaseId);
+    const achievementDocRef = doc(
+      collection(userDocRef, "achievements"),
+      firebaseId
+    );
     await deleteDoc(achievementDocRef);
   };
   const deleteAthletic = async (localId: number, firebaseId: string) => {
-    const updatedAthletics = athletics.filter((athletic) => athletic.id !== localId);
+    const updatedAthletics = athletics.filter(
+      (athletic) => athletic.id !== localId
+    );
     setAthletics(updatedAthletics);
     const athleticDocRef = doc(collection(userDocRef, "athletics"), firebaseId);
     await deleteDoc(athleticDocRef);
@@ -303,7 +450,9 @@ const [honors, setHonors] = useState([
     await deleteDoc(clubDocRef);
   };
   const deleteService = async (localId: number, firebaseId: string) => {
-    const updatedServices = services.filter((service) => service.id !== localId);
+    const updatedServices = services.filter(
+      (service) => service.id !== localId
+    );
     setServices(updatedServices);
     const serviceDocRef = doc(collection(userDocRef, "services"), firebaseId);
     await deleteDoc(serviceDocRef);
@@ -315,20 +464,26 @@ const [honors, setHonors] = useState([
     await deleteDoc(honorDocRef);
   };
 
-
-
-
-// RENDER
-const renderAchievements = () => {
-  const renderRightActions = (progress: Animated.AnimatedInterpolation<string | number>, dragX: Animated.AnimatedInterpolation<string | number>, index: number) => {
-    const trans = dragX.interpolate({
-      inputRange: [0, 50, 100],
-      outputRange: [0, 0.5, 1],
-    });
-    return (
-      <TouchableOpacity
-        onPress={() => deleteAchievement(achievements[index].id, achievements[index].firebaseId)}
-      >
+  // RENDER
+  const renderAchievements = () => {
+    const renderRightActions = (
+      progress: Animated.AnimatedInterpolation<string | number>,
+      dragX: Animated.AnimatedInterpolation<string | number>,
+      index: number
+    ) => {
+      const trans = dragX.interpolate({
+        inputRange: [0, 50, 100],
+        outputRange: [0, 0.5, 1],
+      });
+      return (
+        <TouchableOpacity
+          onPress={() =>
+            deleteAchievement(
+              achievements[index].id,
+              achievements[index].firebaseId
+            )
+          }
+        >
           <View style={styles.deleteButton}>
             <Animated.View
               style={{
@@ -365,8 +520,6 @@ const renderAchievements = () => {
     ));
   };
 
-
- 
   const renderAthletics = () => {
     const renderRightActions = (
       progress: Animated.AnimatedInterpolation<string | number>,
@@ -379,7 +532,9 @@ const renderAchievements = () => {
       });
       return (
         <TouchableOpacity
-        onPress={() => deleteAthletic(athletics[index].id, athletics[index].firebaseId)}
+          onPress={() =>
+            deleteAthletic(athletics[index].id, athletics[index].firebaseId)
+          }
         >
           <View style={styles.deleteButton}>
             <Animated.View
@@ -417,9 +572,6 @@ const renderAchievements = () => {
     ));
   };
 
-
-
-
   const renderArts = () => {
     const renderRightActions = (
       progress: Animated.AnimatedInterpolation<string | number>,
@@ -432,7 +584,7 @@ const renderAchievements = () => {
       });
       return (
         <TouchableOpacity
-        onPress={() => deleteArt(arts[index].id, arts[index].firebaseId)}
+          onPress={() => deleteArt(arts[index].id, arts[index].firebaseId)}
         >
           <View style={styles.deleteButton}>
             <Animated.View
@@ -461,9 +613,7 @@ const renderAchievements = () => {
         <View style={styles.card}>
           <View style={styles.achievementContent}>
             <Text style={styles.achievementTitle}>{art.title}</Text>
-            <Text style={styles.achievementDescription}>
-              {art.description}
-            </Text>
+            <Text style={styles.achievementDescription}>{art.description}</Text>
           </View>
         </View>
       </Swipeable>
@@ -482,9 +632,7 @@ const renderAchievements = () => {
       });
       return (
         <TouchableOpacity
-          onPress={() =>
-            deleteClub(clubs[index].id, clubs[index].firebaseId)
-          }
+          onPress={() => deleteClub(clubs[index].id, clubs[index].firebaseId)}
         >
           <View style={styles.deleteButton}>
             <Animated.View
@@ -520,7 +668,7 @@ const renderAchievements = () => {
         </View>
       </Swipeable>
     ));
-  };  
+  };
   const renderServices = () => {
     const renderRightActions = (
       progress: Animated.AnimatedInterpolation<string | number>,
@@ -533,7 +681,9 @@ const renderAchievements = () => {
       });
       return (
         <TouchableOpacity
-        onPress={() => deleteService(services[index].id, services[index].firebaseId)}
+          onPress={() =>
+            deleteService(services[index].id, services[index].firebaseId)
+          }
         >
           <View style={styles.deleteButton}>
             <Animated.View
@@ -569,7 +719,7 @@ const renderAchievements = () => {
         </View>
       </Swipeable>
     ));
-  };  
+  };
   const renderHonors = () => {
     const renderRightActions = (
       progress: Animated.AnimatedInterpolation<string | number>,
@@ -620,18 +770,26 @@ const renderAchievements = () => {
         </View>
       </Swipeable>
     ));
-  };  
-
-
+  };
 
   return (
     // MY PORTFOLIO
     <SafeAreaView style={{ flex: 1 }}>
       <ScrollView style={styles.container}>
         <View style={styles.headerContainer}>
-          <Text style={styles.headerText} numberOfLines={1} adjustsFontSizeToFit> 
-          {firstName}'s Portfolioㅤ
-          <Ionicons name="ios-share" color={"black"} size={35} onPress={generatePdf}/></Text>
+          <Text
+            style={styles.headerText}
+            numberOfLines={1}
+            adjustsFontSizeToFit
+          >
+            {firstName}'s Portfolioㅤ
+            <Ionicons
+              name="ios-share"
+              color={"black"}
+              size={35}
+              onPress={generatePdf}
+            />
+          </Text>
         </View>
         {/*ACADEMIC ACHIEVEMENTS*/}
         <View style={styles.section}>
@@ -991,9 +1149,6 @@ const renderAchievements = () => {
   );
 };
 
-
-
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -1143,7 +1298,7 @@ const styles = StyleSheet.create({
     width: 200,
   },
   generatePDFButtonText: {
-    color: "#fff", 
+    color: "#fff",
     fontSize: 16,
     fontFamily: "mon-b",
   },
@@ -1163,9 +1318,31 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 24,
   },
+  previewImage: {
+    width: "100%",
+    height: 200,
+    marginBottom: 20,
+  },
+  imagePickerButton: {
+    backgroundColor: "#3498db",
+    padding: 10,
+    borderRadius: 5,
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  imagePickerButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
+  },
+  imageUploadBox: {
+    height: 200,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderStyle: "dashed",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 20,
+  },
 });
-
-
-
 
 export default Portfolio;
