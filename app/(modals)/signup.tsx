@@ -10,7 +10,6 @@ import { Link } from 'expo-router';
 import Spinner from "react-native-loading-spinner-overlay";
 import { useSignUp } from "@clerk/clerk-expo";
 
-
 enum Strategy{
   Google = 'oauth_google',
   Apple = 'oauth_apple',

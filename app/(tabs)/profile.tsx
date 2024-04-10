@@ -181,7 +181,7 @@ const Page = () => {
           </Link>
         </View>
         <View style={styles.buttonLink2}>
-          <Link href="/(modals)/onboarding">
+          <Link href="/(modals)/help">
             <Text style={styles.buttonText2}> Help </Text>
           </Link>
         </View>

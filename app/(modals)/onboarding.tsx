@@ -1,74 +1,64 @@
-import React from "react";
-import {StyleSheet} from "react-native";
-import { View, Text, Image, TouchableOpacity } from "react-native";
-import Swiper from "react-native-swiper";
-import { Stack, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
+import React, { useState } from "react";
+import { StyleSheet } from "react-native";
+import { Image } from "react-native";
+import Onboarding from 'react-native-onboarding-swiper';
 
-const onboarding = () => {
-    const router = useRouter();
-    const closeInstructions = () => {
-        router.push("/(tabs)/profile");
-  };
+const OnboardingScreen = () => {
+  const router = useRouter();
+  const [showUserInfoForm, setShowUserInfoForm] = useState(false);
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
 
   return (
-    <View style={styles.container}>
-      <Swiper style={styles.wrapper} showsButtons={false} loop={false}>
-        <View style={styles.slide}>
-          <Image source={require("./appLogo.png")} style={styles.image} />
-        </View>
-        <View style={styles.slide}>
-          <Image source={require("./appLogo.png")} style={styles.image} />
-        </View>
-        <View style={styles.slide}>
-          <Image source={require("./appLogo.png")} style={styles.image} />
-        </View>
-        <View style={styles.slide}>
-          <Image source={require("./appLogo.png")} style={styles.image} />
-        </View>
-        <View style={styles.slide}>
-          <Image source={require("./appLogo.png")} style={styles.image} />
-        </View>
-        <View style={styles.slide}>
-          <Image source={require("./appLogo.png")} style={styles.image} />
-        </View>
-        <View style={styles.slide}>
-            <TouchableOpacity style={styles.closeButton} onPress={closeInstructions}>
-                <Text style={styles.closeButtonText}>Close Instructions</Text>
-            </TouchableOpacity>
-      </View>
-    </Swiper>
+    
+    <Onboarding
+      pages={[
 
-    </View>
+        {
+          backgroundColor: '#FFFFFF',
+          image: <Image source={require('./modalImages/onboarding1.png')} style={styles.image} />,
+          title: '',
+          subtitle: '',
+        },
+        {
+          backgroundColor: '#FFFFFF',
+          image: <Image source={require('./modalImages/onboarding2.png')} style={styles.image} />,
+          title: '',
+          subtitle: '',
+        },
+        {
+          backgroundColor: '#FFFFFF',
+          image: <Image source={require('./modalImages/onboarding3.png')} style={styles.image} />,
+          title: '',
+          subtitle: '',
+        },
+        {
+          backgroundColor: '#FFFFFF',
+          image: <Image source={require('./modalImages/onboarding4.png')} style={styles.image} />,
+          title: '',
+          subtitle: '',
+        },
+        {
+          backgroundColor: '#FFFFFF',
+          image: <Image source={require('./modalImages/onboarding5.png')} style={styles.image} />,
+          title: '',
+          subtitle: '',
+        },
+      ]}
+      onDone={() => router.push("/(modals)/onboard2")}
+      onSkip={() => router.push("/(modals)/onboard2")}
+    />
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  wrapper: {},
-  slide: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
   image: {
-    width: "100%",
-    height: "100%",
-    resizeMode: "cover",
-  },
-  closeButton: {
-    position: "absolute",
-    verticalAlign: "middle",
-    alignSelf: "center",
-    padding: 10,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    borderRadius: 10,
-  },
-  closeButtonText: {
-    color: "white",
-    fontSize: 16,
+    width: '100%',
+    height: '100%',
+    resizeMode: 'contain', // Use 'contain' to fit the image inside the container
   },
 });
 
-export default onboarding;
+export default OnboardingScreen;

@@ -10,12 +10,14 @@ import {
   TouchableOpacity,
   SafeAreaView,
   Animated,
+  Image,
 } from "react-native";
 import {
   FontAwesome5,
   Ionicons,
   MaterialCommunityIcons,
 } from "@expo/vector-icons";
+import * as ImagePicker from 'expo-image-picker'; // Import ImagePicker
 import { Swipeable } from "react-native-gesture-handler";
 import { printToFileAsync } from "expo-print";
 import { shareAsync } from "expo-sharing";
@@ -48,7 +50,9 @@ const Portfolio = () => {
     // Create the HTML content dynamically using user data
     const achievementsHtml = achievements.map(
       (achievement) =>
-        `<p><strong>${achievement.title}</strong>: ${achievement.description}</p>`
+        `<p><strong>${achievement.title}</strong>: ${
+          achievement.description
+        }</p>`
     );
     const athleticsHtml = athletics.map(
       (athletic) =>
@@ -74,22 +78,30 @@ const Portfolio = () => {
     const html = `
       <html>
         <body>
-          <h1>My Portfolio</h1>
+        <img src="${user?.profileImageUrl}" width="75" height="75">
+          <h1 style="text-align:center;"><b>${user?.fullName}</b></h1>
+          <p style="text-align:center;">${user?.emailAddresses}</p>
+          <p style="text-align:center;">${user?.phoneNumbers}</p>
           
           <h2>Academic Achievements</h2>
           ${achievementsHtml.join("")}
-  
+          <hr>
+
           <h2>Athletic Participation</h2>
           ${athleticsHtml.join("")}
-  
+          <hr>
+
           <h2>Performing Arts Experience</h2>
           ${artsHtml.join("")}
+          <hr>
 
           <h2>Clubs And Organization Memberships</h2>
           ${clubsHtml.join("")}
+          <hr>
 
           <h2>Community Service Hours</h2>
           ${servicesHtml.join("")}
+          <hr>
 
           <h2>Honors Classes</h2>
           ${honorsHtml.join("")}
@@ -106,88 +118,99 @@ const Portfolio = () => {
 
   const swipeableRef = useRef(null);
 
-  const [achievements, setAchievements] = useState([
+  const [achievements, setAchievements] = useState<{ id: number; title: string; description: string; image: string[]; firebaseId: string; }[]>([
     {
       id: 1,
       title: "Academic Excellence",
       description: "Achieved academic excellence in the first semester.",
+      image: [],
       firebaseId: "",
     },
     {
       id: 2,
       title: "Math Olympiad Participant",
       description: "Successfully participated in the regional Math Olympiad.",
+      image: [],
       firebaseId: "",
     },
   ]);
-  const [athletics, setAthletics] = useState([
+  const [athletics, setAthletics] = useState<{ id: number; title: string; description: string; image: string[]; firebaseId: string; }[]>([
     {
       id: 1,
       title: "Basketball Team",
       description: "Played as a member of the school basketball team.",
+      image: [],
       firebaseId: "",
     },
     {
       id: 2,
       title: "Track and Field",
       description: "Participated in various track and field events.",
+      image: [],
       firebaseId: "",
     },
   ]);
-  const [arts, setArts] = useState([
+  const [arts, setArts] = useState<{ id: number; title: string; description: string; image: string[]; firebaseId: string; }[]>([
     {
       id: 1,
       title: "Oil Painting",
       description: "Created beautiful oil paintings inspired by Lona Misa.",
+      image: [],
       firebaseId: "",
     },
     {
       id: 2,
       title: "Watercolor Art",
-      description:
-        "Explored the art of watercolor painting with themes like Gan Vogh.",
+      description: "Explored the art of watercolor painting with themes like Gan Vogh.",
+      image: [],
       firebaseId: "",
     },
   ]);
-  const [clubs, setClubs] = useState([
+  const [clubs, setClubs] = useState<{ id: number; title: string; description: string; image: string[]; firebaseId: string; }[]>([
     {
       id: 1,
       title: "Future Business Leaders of America (FBLA)",
       description: "Active member of FBLA, gaining valuable business insights.",
+      image: [],
       firebaseId: "",
     },
     {
       id: 2,
       title: "Science Olympiad",
       description: "Engaged in challenging science competitions and projects.",
+      image: [],
       firebaseId: "",
     },
   ]);
-  const [services, setServices] = useState([
+  const [services, setServices] = useState<{ id: number; title: string; description: string; image: string[]; firebaseId: string; }[]>([
     {
       id: 1,
       title: "Community Volunteer",
       description: "Provided assistance to community members in need.",
+      image: [],
       firebaseId: "",
     },
     {
       id: 2,
       title: "Tutoring",
       description: "Offered tutoring services to help fellow students succeed.",
+      image: [],
       firebaseId: "",
     },
   ]);
-  const [honors, setHonors] = useState([
+  const [honors, setHonors] = useState<{ id: number; title: string; description: string; image: string[]; firebaseId: string; }[]>([
     {
       id: 1,
       title: "AP Biology Honors",
       description: "Successfully completed the challenging AP Biology course.",
+      image: [],
       firebaseId: "",
     },
     {
       id: 2,
       title: "Calculus Achievement",
       description: "Achieved excellence in the study of Calculus.",
+      image: [],
       firebaseId: "",
     },
   ]);
@@ -204,26 +227,32 @@ const Portfolio = () => {
   const [newAchievement, setNewAchievement] = useState({
     title: "",
     description: "",
+    image: [],
   });
   const [newAthletic, setNewAthletic] = useState({
     title: "",
     description: "",
+    image: [],
   });
   const [newArt, setNewArt] = useState({
     title: "",
     description: "",
+    image: [],
   });
   const [newClub, setNewClub] = useState({
     title: "",
     description: "",
+    image: [],
   });
   const [newService, setNewService] = useState({
     title: "",
     description: "",
+    image: [],
   });
   const [newHonor, setNewHonor] = useState({
     title: "",
     description: "",
+    image: [],
   });
 
   const toggleAddAchievementModal = () => {
@@ -304,11 +333,32 @@ const Portfolio = () => {
   const userCollection = collection(FIRESTORE_DB, "users");
   const userDocRef = doc(userCollection, user?.id);
 
+  const [images, setImages] = useState<string[]>([]); // Declare type as an array of strings
+
+  const removeImage = (indexToRemove: number) => {
+    setImages(images.filter((_, index) => index !== indexToRemove));
+  };
+
+  // Function to handle image selection
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      const selectedImage = result.assets[0].uri; // Using assets array to access selected image
+      setImages([...images, selectedImage]);
+    }
+  };
   const addAchievement = async () => {
     if (newAchievement.title && newAchievement.description) {
       const achievementData = {
         title: newAchievement.title,
         description: newAchievement.description,
+        image: images,
       };
       const achievementDocRef = await addDoc(
         collection(userDocRef, "achievements"),
@@ -320,7 +370,8 @@ const Portfolio = () => {
         ...achievements,
         { id: achievements.length + 1, firebaseId, ...achievementData },
       ]);
-      setNewAchievement({ title: "", description: ""});
+      setNewAchievement({ title: "", description: "", image: []});
+      setImages([]);
       toggleAddAchievementModal();
     }
   };
@@ -330,6 +381,7 @@ const Portfolio = () => {
       const athleticData = {
         title: newAthletic.title,
         description: newAthletic.description,
+        image: images,
       };
       const athleticDocRef = await addDoc(
         collection(userDocRef, "athletics"),
@@ -341,7 +393,8 @@ const Portfolio = () => {
         ...athletics,
         { id: athletics.length + 1, firebaseId, ...athleticData },
       ]);
-      setNewAthletic({ title: "", description: ""});
+      setNewAthletic({ title: "", description: "", image: []});
+      setImages([]);
       toggleAddAthleticModal();
     }
   };
@@ -350,12 +403,14 @@ const Portfolio = () => {
       const artData = {
         title: newArt.title,
         description: newArt.description,
+        image: images,
       };
       const artDocRef = await addDoc(collection(userDocRef, "arts"), artData);
       const firebaseId = artDocRef.id;
 
       setArts([...arts, { id: arts.length + 1, firebaseId, ...artData }]);
-      setNewArt({ title: "", description: ""});
+      setNewArt({ title: "", description: "", image: []});
+      setImages([]);
       toggleAddArtModal();
     }
   };
@@ -364,6 +419,7 @@ const Portfolio = () => {
       const clubData = {
         title: newClub.title,
         description: newClub.description,
+        image: images,
       };
       const clubDocRef = await addDoc(
         collection(userDocRef, "clubs"),
@@ -372,7 +428,8 @@ const Portfolio = () => {
       const firebaseId = clubDocRef.id;
 
       setClubs([...clubs, { id: clubs.length + 1, firebaseId, ...clubData }]);
-      setNewClub({ title: "", description: ""});
+      setNewClub({ title: "", description: "", image: []});
+      setImages([]);
       toggleAddClubModal();
     }
   };
@@ -381,6 +438,7 @@ const Portfolio = () => {
       const serviceData = {
         title: newService.title,
         description: newService.description,
+        image: images,
       };
       const serviceDocRef = await addDoc(
         collection(userDocRef, "services"),
@@ -392,7 +450,8 @@ const Portfolio = () => {
         ...services,
         { id: services.length + 1, firebaseId, ...serviceData },
       ]);
-      setNewService({ title: "", description: ""});
+      setNewService({ title: "", description: "", image: []});
+      setImages([]);
       toggleAddServiceModal();
     }
   };
@@ -401,6 +460,7 @@ const Portfolio = () => {
       const honorData = {
         title: newHonor.title,
         description: newHonor.description,
+        image: images,
       };
       const honorDocRef = await addDoc(
         collection(userDocRef, "honors"),
@@ -412,7 +472,8 @@ const Portfolio = () => {
         ...honors,
         { id: honors.length + 1, firebaseId, ...honorData },
       ]);
-      setNewHonor({ title: "", description: ""});
+      setNewHonor({ title: "", description: "", image: []});
+      setImages([]);
       toggleAddHonorModal();
     }
   };
@@ -424,9 +485,7 @@ const Portfolio = () => {
     );
     setAchievements(updatedAchievements);
     const achievementDocRef = doc(
-      collection(userDocRef, "achievements"),
-      firebaseId
-    );
+      collection(userDocRef, "achievements"), firebaseId);
     await deleteDoc(achievementDocRef);
   };
   const deleteAthletic = async (localId: number, firebaseId: string) => {
@@ -501,23 +560,34 @@ const Portfolio = () => {
         </TouchableOpacity>
       );
     };
-    return achievements.map((achievement, index) => (
-      <Swipeable
-        key={achievement.id}
-        renderRightActions={(progress, dragX) =>
-          renderRightActions(progress, dragX, index)
-        }
-      >
-        <View style={styles.card}>
-          <View style={styles.achievementContent}>
-            <Text style={styles.achievementTitle}>{achievement.title}</Text>
-            <Text style={styles.achievementDescription}>
-              {achievement.description}
-            </Text>
-          </View>
+  return achievements.map((achievement, index) => (
+    <Swipeable
+      key={achievement.id}
+      renderRightActions={(progress, dragX) =>
+        renderRightActions(progress, dragX, index)
+      }
+    >
+      <View style={styles.card}>
+        <View style={styles.achievementContent}>
+          <Text style={styles.achievementTitle}>{achievement.title}</Text>
+          <Text style={styles.achievementDescription}>
+            {achievement.description}
+          </Text>
+          {Array.isArray(achievement.image) && achievement.image.length > 0 ? (
+            achievement.image.map((imageUri, imageIndex) => (
+              <Image
+                key={`${index}-${imageIndex}`}
+                source={{ uri: imageUri }}
+                style={styles.image}
+              />
+            ))
+          ) : (
+            <Text></Text>
+          )}
         </View>
-      </Swipeable>
-    ));
+      </View>
+    </Swipeable>
+  ));
   };
 
   const renderAthletics = () => {
@@ -566,6 +636,18 @@ const Portfolio = () => {
             <Text style={styles.achievementDescription}>
               {athletic.description}
             </Text>
+            {Array.isArray(athletic.image) &&
+            athletic.image.length > 0 ? (
+              athletic.image.map((imageUri, imageIndex) => (
+                <Image
+                  key={`${index}-${imageIndex}`}
+                  source={{ uri: imageUri }}
+                  style={styles.image}
+                />
+              ))
+            ) : (
+              <Text></Text>
+            )}
           </View>
         </View>
       </Swipeable>
@@ -614,6 +696,18 @@ const Portfolio = () => {
           <View style={styles.achievementContent}>
             <Text style={styles.achievementTitle}>{art.title}</Text>
             <Text style={styles.achievementDescription}>{art.description}</Text>
+            {Array.isArray(art.image) &&
+            art.image.length > 0 ? (
+              art.image.map((imageUri, imageIndex) => (
+                <Image
+                  key={`${index}-${imageIndex}`}
+                  source={{ uri: imageUri }}
+                  style={styles.image}
+                />
+              ))
+            ) : (
+              <Text></Text>
+            )}
           </View>
         </View>
       </Swipeable>
@@ -664,6 +758,18 @@ const Portfolio = () => {
             <Text style={styles.achievementDescription}>
               {club.description}
             </Text>
+            {Array.isArray(club.image) &&
+            club.image.length > 0 ? (
+              club.image.map((imageUri, imageIndex) => (
+                <Image
+                  key={`${index}-${imageIndex}`}
+                  source={{ uri: imageUri }}
+                  style={styles.image}
+                />
+              ))
+            ) : (
+              <Text></Text>
+            )}
           </View>
         </View>
       </Swipeable>
@@ -715,6 +821,18 @@ const Portfolio = () => {
             <Text style={styles.achievementDescription}>
               {service.description}
             </Text>
+            {Array.isArray(service.image) &&
+            service.image.length > 0 ? (
+              service.image.map((imageUri, imageIndex) => (
+                <Image
+                  key={`${index}-${imageIndex}`}
+                  source={{ uri: imageUri }}
+                  style={styles.image}
+                />
+              ))
+            ) : (
+              <Text></Text>
+            )}
           </View>
         </View>
       </Swipeable>
@@ -766,6 +884,18 @@ const Portfolio = () => {
             <Text style={styles.achievementDescription}>
               {honor.description}
             </Text>
+            {Array.isArray(honor.image) &&
+            honor.image.length > 0 ? (
+              honor.image.map((imageUri, imageIndex) => (
+                <Image
+                  key={`${index}-${imageIndex}`}
+                  source={{ uri: imageUri }}
+                  style={styles.image}
+                />
+              ))
+            ) : (
+              <Text></Text>
+            )}
           </View>
         </View>
       </Swipeable>
@@ -814,41 +944,61 @@ const Portfolio = () => {
         {/*ACADEMIC ACHIEVEMENTS - Adding Page*/}
         <Modal visible={isAddAchievementModalVisible} animationType="slide">
           <SafeAreaView style={styles.modalContainer}>
-            <Text style={styles.modalTitle}>Add Academic Achievement</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Achievement Title"
-              placeholderTextColor="#A9A9A9"
-              onChangeText={(text) =>
-                setNewAchievement({ ...newAchievement, title: text })
-              }
-              value={newAchievement.title}
-            />
-            <TextInput
-              style={[styles.input, styles.multilineInput]}
-              placeholder="Achievement Description"
-              onChangeText={(text) =>
-                setNewAchievement({ ...newAchievement, description: text })
-              }
-              value={newAchievement.description}
-              multiline
-            />
-            <View style={styles.modalButtonsContainer}>
-              <TouchableOpacity
-                style={styles.modalButton}
-                onPress={addAchievement}
-              >
-                <Text style={styles.modalButtonText}>
-                  Add Academic Achievement
-                </Text>
+            <ScrollView contentContainerStyle={styles.scrollViewContent}>
+              <Text style={styles.modalTitle}>Add Academic Achievement</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Achievement Title"
+                placeholderTextColor="#A9A9A9"
+                onChangeText={(text) =>
+                  setNewAchievement({ ...newAchievement, title: text })
+                }
+                value={newAchievement.title}
+              />
+              <TextInput
+                style={[styles.input, styles.multilineInput]}
+                placeholder="Achievement Description"
+                onChangeText={(text) =>
+                  setNewAchievement({ ...newAchievement, description: text })
+                }
+                value={newAchievement.description}
+                multiline
+              />
+              <TouchableOpacity style={styles.uploadButton} onPress={pickImage}>
+                <Text style={styles.uploadButtonText}>Upload Image</Text>
               </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.modalButton}
-                onPress={toggleAddAchievementModal}
-              >
-                <Text style={styles.modalButtonText}>Cancel</Text>
-              </TouchableOpacity>
-            </View>
+              {images.map((image, index) => (
+                <View key={index} style={styles.imageContainer}>
+                  <Image source={{ uri: image }} style={styles.image} />
+                  <TouchableOpacity
+                    onPress={() => removeImage(index)}
+                    style={styles.removeButton}
+                  >
+                    <Ionicons
+                      name="close-circle-outline"
+                      size={24}
+                      color="white"
+                    />
+                  </TouchableOpacity>
+                </View>
+              ))}
+              <View style={styles.modalButtonsContainer}>
+                <TouchableOpacity
+                  style={styles.modalButton}
+                  onPress={addAchievement}
+                >
+                  <Text style={styles.modalButtonText}>
+                    Add Academic Achievement
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.modalButton}
+                  onPress={toggleAddAchievementModal}
+                >
+                  <Text style={styles.modalButtonText}>Cancel</Text>
+                </TouchableOpacity>
+              </View>
+            </ScrollView>
           </SafeAreaView>
         </Modal>
 
@@ -894,6 +1044,24 @@ const Portfolio = () => {
               value={newAthletic.description}
               multiline
             />
+            <TouchableOpacity style={styles.uploadButton} onPress={pickImage}>
+              <Text style={styles.uploadButtonText}>Upload Image</Text>
+            </TouchableOpacity>
+            {images.map((image, index) => (
+              <View key={index} style={styles.imageContainer}>
+                <Image source={{ uri: image }} style={styles.image} />
+                <TouchableOpacity
+                  onPress={() => removeImage(index)}
+                  style={styles.removeButton}
+                >
+                  <Ionicons
+                    name="close-circle-outline"
+                    size={24}
+                    color="white"
+                  />
+                </TouchableOpacity>
+              </View>
+            ))}
             <View style={styles.modalButtonsContainer}>
               <TouchableOpacity
                 style={styles.modalButton}
@@ -951,6 +1119,24 @@ const Portfolio = () => {
               value={newArt.description}
               multiline
             />
+              <TouchableOpacity style={styles.uploadButton} onPress={pickImage}>
+                <Text style={styles.uploadButtonText}>Upload Image</Text>
+              </TouchableOpacity>
+              {images.map((image, index) => (
+                <View key={index} style={styles.imageContainer}>
+                  <Image source={{ uri: image }} style={styles.image} />
+                  <TouchableOpacity
+                    onPress={() => removeImage(index)}
+                    style={styles.removeButton}
+                  >
+                    <Ionicons
+                      name="close-circle-outline"
+                      size={24}
+                      color="white"
+                    />
+                  </TouchableOpacity>
+                </View>
+            ))}
             <View style={styles.modalButtonsContainer}>
               <TouchableOpacity style={styles.modalButton} onPress={addArt}>
                 <Text style={styles.modalButtonText}>Add Performing Art</Text>
@@ -1065,6 +1251,24 @@ const Portfolio = () => {
               value={newService.description}
               multiline
             />
+            <TouchableOpacity style={styles.uploadButton} onPress={pickImage}>
+              <Text style={styles.uploadButtonText}>Upload Image</Text>
+            </TouchableOpacity>
+            {images.map((image, index) => (
+              <View key={index} style={styles.imageContainer}>
+                <Image source={{ uri: image }} style={styles.image} />
+                <TouchableOpacity
+                  onPress={() => removeImage(index)}
+                  style={styles.removeButton}
+                >
+                  <Ionicons
+                    name="close-circle-outline"
+                    size={24}
+                    color="white"
+                  />
+                </TouchableOpacity>
+              </View>
+            ))}
             <View style={styles.modalButtonsContainer}>
               <TouchableOpacity style={styles.modalButton} onPress={addService}>
                 <Text style={styles.modalButtonText}>
@@ -1121,6 +1325,24 @@ const Portfolio = () => {
               value={newHonor.description}
               multiline
             />
+            <TouchableOpacity style={styles.uploadButton} onPress={pickImage}>
+              <Text style={styles.uploadButtonText}>Upload Image</Text>
+            </TouchableOpacity>
+            {images.map((image, index) => (
+              <View key={index} style={styles.imageContainer}>
+                <Image source={{ uri: image }} style={styles.image} />
+                <TouchableOpacity
+                  onPress={() => removeImage(index)}
+                  style={styles.removeButton}
+                >
+                  <Ionicons
+                    name="close-circle-outline"
+                    size={24}
+                    color="white"
+                  />
+                </TouchableOpacity>
+              </View>
+            ))}
             <View style={styles.modalButtonsContainer}>
               <TouchableOpacity style={styles.modalButton} onPress={addHonor}>
                 <Text style={styles.modalButtonText}>Add Honors Class</Text>
@@ -1342,6 +1564,42 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 20,
+  },
+  uploadButton: {
+    backgroundColor: "white", // Custom color
+    padding: 12,
+    borderRadius: 8,
+    alignItems: "center",
+    marginVertical: 10,
+    borderColor: "black", // Add black border color
+    borderWidth: 1, // Add border width
+    marginHorizontal: 10,
+  },
+  uploadButtonText: {
+    color: "black",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  image: {
+    width: "100%",
+    height: 200,
+    resizeMode: "cover",
+    marginBottom: 10,
+    borderRadius: 10,
+    marginTop: 20,
+  },
+  imageContainer: {
+    position: "relative",
+    marginLeft: 19,
+    marginRight: 19,
+  },
+  removeButton: {
+    position: "absolute",
+    top: 29,
+    right: 5,
+  },
+  scrollViewContent: {
+
   },
 });
 

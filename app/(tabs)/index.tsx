@@ -1,10 +1,36 @@
 import React, { useEffect, useRef, useState } from "react";
-import {View, Text, Image, Button, ScrollView, StyleSheet, Modal, TextInput, TouchableOpacity, SafeAreaView, Animated,} from "react-native";
-import {FontAwesome5, Ionicons, MaterialCommunityIcons,} from "@expo/vector-icons";
+import {
+  View,
+  Text,
+  Image,
+  Button,
+  ScrollView,
+  StyleSheet,
+  Modal,
+  TextInput,
+  TouchableOpacity,
+  SafeAreaView,
+  Animated,
+} from "react-native";
+import * as ImagePicker from 'expo-image-picker'; // Import ImagePicker
+import {
+  FontAwesome5,
+  Ionicons,
+  MaterialCommunityIcons,
+} from "@expo/vector-icons";
 import { Swipeable } from "react-native-gesture-handler";
 import { printToFileAsync } from "expo-print";
 import { shareAsync } from "expo-sharing";
-import {addDoc, collection, deleteDoc, doc, getDocs, onSnapshot, updateDoc,} from "firebase/firestore";
+import {
+  Timestamp,
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  getDocs,
+  onSnapshot,
+  updateDoc,
+} from "firebase/firestore";
 import { FIRESTORE_DB } from "../../firebaseConfig";
 import { useAuth, useUser } from "@clerk/clerk-expo";
 import Colors from "constants/Colors";
@@ -23,17 +49,34 @@ const Portfolio = () => {
 
   const swipeableRef = useRef(null);
 
-  const [feeds, setFeeds] = useState([
+  const [feeds, setFeeds] = useState<
+    {
+      id: number;
+      title: string;
+      description: string;
+      userName: string | undefined | null;
+      userId: string | undefined | null;
+      userProfileImageUrl: string | undefined | null;
+      likes: number;
+      likedBy: string[];
+      dateAdded: string;
+      image: string[];
+      firebaseId: string;
+    }[]
+  >([
     {
       id: 1,
       title: "FBLA 1st Place at SLC",
       description:
         "I was honored to have the opportunity to compete at Future Business Leaders of America's (FBLA) Texas State Conference. While there, I competed in the Mobile Application Development event, and maganged to place 1st. I am truly thankfull for all those who have helped me on this journey. I can't wait to now compete at the National Leadership Conference in Orlando, Florida this Summer!!",
       userName: user?.fullName,
+      userId: user?.id,
       userProfileImageUrl: user?.profileImageUrl,
       firebaseId: "",
       likes: 0,
-      likedBy: ["hello"],
+      image: [],
+      likedBy: [],
+      dateAdded: "",
     },
     {
       id: 2,
@@ -41,10 +84,13 @@ const Portfolio = () => {
       description:
         "I will running for the Texas TSA State Vice President this April! No matter the outcome, I am thankfull for all the people who have given me this opportunity. This really couldn't have happen without your help and continued support. Thanks!",
       userName: user?.fullName,
+      userId: user?.id,
       userProfileImageUrl: user?.profileImageUrl,
       firebaseId: "",
       likes: 0,
-      likedBy: ["hello"],
+      image: [],
+      likedBy: [],
+      dateAdded: "",
     },
     {
       id: 3,
@@ -52,37 +98,60 @@ const Portfolio = () => {
       description:
         "I am excited to inform everyone that I will attending HOSA, Future Health Professionals, International Leadership Conference (ILC), this Summer, in Dallas, Texas!",
       userName: user?.fullName,
+      userId: user?.id,
       userProfileImageUrl: user?.profileImageUrl,
       firebaseId: "",
       likes: 0,
-      likedBy: ["hello"],
+      image: [],
+      likedBy: [],
+      dateAdded: "",
     },
   ]);
 
-  const [isAddFeedModalVisible, setAddFeedModalVisible] =
-    useState(false);
+  const [isAddFeedModalVisible, setAddFeedModalVisible] = useState(false);
 
   const [newFeed, setNewFeed] = useState({
     title: "",
     description: "",
     userName: user?.fullName,
+    userId: user?.id,
     userProfileImageUrl: user?.profileImageUrl,
     likes: 0,
     likedBy: [],
+    image: [],
+    dateAdded: "",
   });
+  const [images, setImages] = useState<string[]>([]); // Declare type as an array of strings
+    const removeImage = (indexToRemove: number) => {
+      setImages(images.filter((_, index) => index !== indexToRemove));
+    };
+
+    // Function to handle image selection
+    const pickImage = async () => {
+      let result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,
+      });
+
+      if (!result.canceled) {
+        const selectedImage = result.assets[0].uri; // Using assets array to access selected image
+        setImages([...images, selectedImage]);
+      }
+    };
 
   const userId = user?.id ? user.id : "";
-
   const likePost = async (index: number) => {
     const updatedFeeds = [...feeds];
     const feed = updatedFeeds[index];
-  
+
     // Ensure userId is initialized
     const userId = user?.id ? user.id : "";
-  
+
     console.log("Feed:", feed);
     console.log("UserId:", userId);
-  
+
     // Toggle like state
     if (feed && feed.likedBy && userId) {
       if (feed.likedBy.includes(userId)) {
@@ -94,12 +163,12 @@ const Portfolio = () => {
         feed.likes += 1;
         feed.likedBy.push(userId);
       }
-  
+
       setFeeds(updatedFeeds);
-  
+
       const feedDocRef = doc(collection(userDocRef, "public"), feed.firebaseId);
       await updateDoc(feedDocRef, { likedBy: feed.likedBy });
-      await updateDoc(feedDocRef, { likes: feed.likes});
+      await updateDoc(feedDocRef, { likes: feed.likes });
     }
   };
 
@@ -113,12 +182,7 @@ const Portfolio = () => {
     const fetchPortfolioData = async () => {
       // Fetch portfolio data from Firestore using userDocRef
       const userFeedsRef = collection(userDocRef, "public");
-      const [
-        feedsSnapshot,
-
-      ] = await Promise.all([
-        getDocs(userFeedsRef),
-      ]);
+      const [feedsSnapshot] = await Promise.all([getDocs(userFeedsRef)]);
 
       const feedsData = feedsSnapshot.docs.map(
         (doc: { id: any; data: () => any }) => ({ id: doc.id, ...doc.data() })
@@ -135,36 +199,43 @@ const Portfolio = () => {
   // ADD
   const userCollection = collection(FIRESTORE_DB, "public");
   const userDocRef = doc(userCollection, "public");
-  
 
   const addFeed = async () => {
-  if (newFeed.title && newFeed.description) {
-    const feedData = {
-      title: newFeed.title,
-      description: newFeed.description,
-      userName: user?.fullName,
-      userProfileImageUrl: user?.profileImageUrl,
-      likes: 0,
-      likedBy: [],
-    };
-    const feedDocRef = await addDoc(collection(userDocRef, "public"), feedData);
-    const firebaseId = feedDocRef.id;
-    setFeeds([
-      ...feeds,
-      { id: feeds.length + 1, firebaseId, ...feedData },
-    ]);
-    setNewFeed({ title: "", description: "", userName: "", userProfileImageUrl: "", likes: 0, likedBy: [],});
-    toggleAddFeedModal();
-  }
-};
-
-
-
+    if (newFeed.title && newFeed.description) {
+      const feedData = {
+        title: newFeed.title,
+        description: newFeed.description,
+        userName: user?.fullName,
+        userId: user?.id,
+        userProfileImageUrl: user?.profileImageUrl,
+        likes: 0,
+        image: images,
+        likedBy: [],
+        dateAdded: Date().substring(4, 15),
+      };
+      const feedDocRef = await addDoc(
+        collection(userDocRef, "public"),
+        feedData
+      );
+      const firebaseId = feedDocRef.id;
+      setFeeds([...feeds, { id: feeds.length + 1, firebaseId, ...feedData }]);
+      setNewFeed({
+        title: "",
+        description: "",
+        userName: "",
+        userId: "",
+        image: [],
+        userProfileImageUrl: "",
+        likes: 0,
+        likedBy: [],
+        dateAdded: "",
+      });
+      toggleAddFeedModal();
+    }
+  };
   //DELETE
   const deleteFeed = async (localId: number, firebaseId: string) => {
-    const updatedFeeds = feeds.filter(
-      (feed) => feed.id !== localId
-    );
+    const updatedFeeds = feeds.filter((feed) => feed.id !== localId);
     setFeeds(updatedFeeds);
     const feedDocRef = doc(collection(userDocRef, "public"), firebaseId);
     await deleteDoc(feedDocRef);
@@ -180,31 +251,31 @@ const Portfolio = () => {
         inputRange: [0, 50, 100],
         outputRange: [0, 0.5, 1],
       });
-      return (
-        <TouchableOpacity
-          onPress={() =>
-            deleteFeed(
-              feeds[index].id,
-              feeds[index].firebaseId
-            )
-          }
-        >
-          <View style={styles.deleteButton}>
-            <Animated.View
-              style={{
-                transform: [{ translateX: trans }],
-              }}
-            >
-              <FontAwesome5
-                name="trash-alt"
-                size={20}
-                color="red"
-                style={styles.deleteIcon}
-              />
-            </Animated.View>
-          </View>
-        </TouchableOpacity>
-      );
+      if (user?.id === feeds[index].userId) {
+        return (
+          <TouchableOpacity
+            onPress={() => deleteFeed(feeds[index].id, feeds[index].firebaseId)}
+          >
+            <View style={styles.deleteButton}>
+              <Animated.View
+                style={{
+                  transform: [{ translateX: trans }],
+                }}
+              >
+                <FontAwesome5
+                  name="trash-alt"
+                  size={20}
+                  color="red"
+                  style={styles.deleteIcon}
+                />
+              </Animated.View>
+            </View>
+          </TouchableOpacity>
+        );
+      } else {
+        // If the current user is not the owner, return null to hide the delete button
+        return null;
+      }
     };
     return feeds.map((feed, index) => (
       <Swipeable
@@ -215,7 +286,7 @@ const Portfolio = () => {
       >
         <View style={styles.card}>
           <View style={styles.feedContent}>
-            <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <View style={{ flexDirection: "row" }}>
               <Image
                 source={
                   user?.profileImageUrl
@@ -224,23 +295,42 @@ const Portfolio = () => {
                 }
                 style={styles.previewImage}
               />
+
               <Text style={styles.userName}> {feed.userName}</Text>
             </View>
+            <Text style={styles.date}> {feed.dateAdded}</Text>
             <Text style={styles.feedTitle}>{feed.title}</Text>
             <Text style={styles.feedDescription}>{feed.description}</Text>
-            <View style={{ flexDirection: "row", alignItems: "center" }}>
-            <TouchableOpacity onPress={() => likePost(index)}>
-            <Ionicons
-                name={
-                  feed.likedBy.includes(userId)
-                    ? "heart"
-                    : "heart-outline"
-                }
-                size={20}
-                color={feed.likedBy.includes(userId) ? Colors.primary : "black"}
-              ></Ionicons>  
-            </TouchableOpacity>
-            <Text style={{marginLeft: 5}}>{feed.likes}</Text>
+            {Array.isArray(feed.image) && feed.image.length > 0 ? (
+              feed.image.map((imageUri, imageIndex) => (
+                <Image
+                  key={`${index}-${imageIndex}`}
+                  source={{ uri: imageUri }}
+                  style={styles.image}
+                />
+              ))
+            ) : (
+              <Text></Text>
+            )}
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                marginBottom: 20,
+              }}
+            >
+              <TouchableOpacity onPress={() => likePost(index)}>
+                <Ionicons
+                  name={
+                    feed.likedBy.includes(userId) ? "heart" : "heart-outline"
+                  }
+                  size={20}
+                  color={
+                    feed.likedBy.includes(userId) ? Colors.primary : "black"
+                  }
+                ></Ionicons>
+              </TouchableOpacity>
+              <Text style={{ marginLeft: 5 }}>{feed.likes}</Text>
             </View>
           </View>
         </View>
@@ -252,33 +342,62 @@ const Portfolio = () => {
     // MY PORTFOLIO
     <SafeAreaView style={{ flex: 1 }}>
       <ScrollView style={styles.container}>
-{/* Header */}
-      <View style={styles.headerContainer}>
+        {/* Header */}
+        <View style={styles.headerContainer}>
           <Text style={styles.headerText}>My Feed</Text>
-          <TouchableOpacity style={styles.addButton} onPress={toggleAddFeedModal}>
-            <FontAwesome5 name="plus" size={20} color="fff" style={styles.addButtonIcon} />
+          <TouchableOpacity
+            style={styles.addButton}
+            onPress={toggleAddFeedModal}
+          >
+            <FontAwesome5
+              name="plus"
+              size={20}
+              color="fff"
+              style={styles.addButtonIcon}
+            />
           </TouchableOpacity>
         </View>
-{/* Feeds */}
-        <View style={styles.section}>
-          {renderFeeds()}
-        </View>
-{/* Posting Modal*/}
+        {/* Feeds */}
+        <View style={styles.section}>{renderFeeds()}</View>
+        {/* Posting Modal*/}
         <Modal visible={isAddFeedModalVisible} animationType="slide">
+          <ScrollView>
           <SafeAreaView style={styles.modalContainer}>
-            <Text style={styles.modalTitle}>What's On Your Mind?</Text>
+            <Text style={styles.modalTitle}>Whats On Your Mind?</Text>
+            <TouchableOpacity style={styles.uploadButton} onPress={pickImage}>
+              <Text style={styles.uploadButtonText}>Upload Images</Text>
+            </TouchableOpacity>
+            <ScrollView
+              horizontal={true}
+              style={styles.imageScrollView}
+              showsHorizontalScrollIndicator={true}
+            >
+              {images.map((image, index) => (
+                <View key={index} style={styles.imageContainer}>
+                  <Image source={{ uri: image }} style={styles.image} />
+                  <TouchableOpacity
+                    onPress={() => removeImage(index)}
+                    style={styles.removeButton}
+                  >
+                    <Ionicons
+                      name="close-circle-outline"
+                      size={24}
+                      color="#FF385C"
+                    />
+                  </TouchableOpacity>
+                </View>
+              ))}
+            </ScrollView>
             <TextInput
               style={styles.input}
-              placeholder="Feed Title"
+              placeholder="Add a Title ..."
               placeholderTextColor="#A9A9A9"
-              onChangeText={(text) =>
-                setNewFeed({ ...newFeed, title: text })
-              }
+              onChangeText={(text) => setNewFeed({ ...newFeed, title: text })}
               value={newFeed.title}
             />
             <TextInput
               style={[styles.input, styles.multilineInput]}
-              placeholder="Feed Description"
+              placeholder="Add a Description ..."
               onChangeText={(text) =>
                 setNewFeed({ ...newFeed, description: text })
               }
@@ -286,13 +405,8 @@ const Portfolio = () => {
               multiline
             />
             <View style={styles.modalButtonsContainer}>
-              <TouchableOpacity
-                style={styles.modalButton}
-                onPress={addFeed}
-              >
-                <Text style={styles.modalButtonText}>
-                  Post
-                </Text>
+              <TouchableOpacity style={styles.modalButton} onPress={addFeed}>
+                <Text style={styles.modalButtonText}>Post</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.modalButton}
@@ -302,6 +416,7 @@ const Portfolio = () => {
               </TouchableOpacity>
             </View>
           </SafeAreaView>
+          </ScrollView>
         </Modal>
       </ScrollView>
     </SafeAreaView>
@@ -334,24 +449,18 @@ const styles = StyleSheet.create({
     fontFamily: "mon-b",
   },
   card: {
-    backgroundColor: "#fff",
-    borderRadius: 8,
-    padding: 20,
+    borderRadius: 0,
+    padding: 0,
     marginBottom: 20,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    elevation: 2,
-    shadowColor: "#000",
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    marginRight: 5,
-    marginLeft: 5,
-    marginTop: 5,
-    shadowOffset: {
-      width: 1,
-      height: 2,
-    },
+    elevation: 10,
+    marginRight: 0,
+    marginLeft: 0,
+    marginTop: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: "#d3d3d3",
   },
   feedItem: {
     fontFamily: "mon",
@@ -362,12 +471,12 @@ const styles = StyleSheet.create({
   feedTitle: {
     fontSize: 20,
     fontWeight: "bold",
-    marginBottom: 4,
+    marginBottom: 10,
     fontFamily: "mon-sb",
   },
   feedDescription: {
     fontFamily: "mon",
-    marginBottom: 10,
+    marginBottom: 15,
   },
   modalContainer: {
     flex: 1,
@@ -377,9 +486,11 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 24,
     fontWeight: "bold",
-    marginBottom: 20,
+    marginBottom: 60,
     textAlign: "center",
     fontFamily: "mon-b",
+    marginTop: 35,
+    
   },
   modalButtonsContainer: {
     flexDirection: "row",
@@ -388,7 +499,7 @@ const styles = StyleSheet.create({
   },
   modalButton: {
     flex: 1,
-    backgroundColor: "#3498db",
+    backgroundColor: Colors.primary,
     height: 50,
     borderRadius: 8,
     justifyContent: "center",
@@ -404,7 +515,7 @@ const styles = StyleSheet.create({
   input: {
     height: 40,
     borderColor: "gray",
-    borderWidth: 1,
+    borderWidth: 2,
     marginBottom: 20,
     paddingLeft: 10,
     borderRadius: 10,
@@ -474,6 +585,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 20,
   },
+  date: {
+    marginTop: -35,
+    marginBottom: 10,
+    marginLeft: 41,
+  },
   imagePickerButtonText: {
     color: "#fff",
     fontWeight: "bold",
@@ -493,8 +609,47 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     fontFamily: "mon-sb",
     marginBottom: 20,
+    marginTop: -5,
   },
-  
+  image: {
+    width: 300,
+    height: 300,
+    resizeMode: "cover",
+    marginBottom: 10,
+    borderRadius: 10,
+    marginTop: 20,
+  },
+  imageContainer: {
+    position: "relative",
+    marginLeft: 19,
+    marginRight: 19,
+    flexDirection: "row",
+  },
+  removeButton: {
+    position: "absolute",
+    top: 29,
+    right: 5,
+  },
+  uploadButtonText: {
+    color: "black",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  imageScrollView: {
+    flexDirection: "row",  },
+  removeButtonText: {
+    color: "white",
+  },
+  uploadButton: {
+    backgroundColor: "white", // Custom color
+    padding: 12,
+    borderRadius: 8,
+    alignItems: "center",
+    marginVertical: 10,
+    borderColor: "black", // Add black border color
+    borderWidth: 1, // Add border width
+    marginHorizontal: 10,
+  },
 });
 
 export default Portfolio;

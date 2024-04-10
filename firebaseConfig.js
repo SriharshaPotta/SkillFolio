@@ -4,12 +4,13 @@ import { getFirestore } from 'firebase/firestore';
 import {firebase} from 'firebase/compat/app';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAqLWdEX2bdwTQklwdB8BADwdi1qqVyUTw",
-  authDomain: "skillfolio-firebase.firebaseapp.com",
-  projectId: "skillfolio-firebase",
-  storageBucket: "skillfolio-firebase.appspot.com",
-  messagingSenderId: "984322750658",
-  appId: "1:984322750658:web:8fe6dec58bb795f5fee35b",
+  apiKey: "AIzaSyCi0qp2B-PrL7HT8eqyKiUnIRIVkLtINwY",
+  authDomain: "fbla-mobileappdev.firebaseapp.com",
+  projectId: "fbla-mobileappdev",
+  storageBucket: "fbla-mobileappdev.appspot.com",
+  messagingSenderId: "489359386388",
+  appId: "1:489359386388:web:846648226bdfed7d500401",
+  measurementId: "G-NSRTGL9F9Z",
 };
 
 export const app = initializeApp(firebaseConfig);
