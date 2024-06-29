@@ -58,7 +58,7 @@ const PrivacyPolicyPage = () => {
         <View>
           {/* Back Button */}
           <Link href="/(tabs)/profile" style={styles.backButton}>
-            <Ionicons name="ios-arrow-back" size={24} color="black" />
+            <Ionicons name="arrow-back-outline" size={24} color="black" />
           </Link>
           <Text style={styles.title}>Report an Issue</Text>
 

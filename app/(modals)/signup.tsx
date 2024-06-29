@@ -157,20 +157,24 @@ const Page = () => {
                 onPress={() => setShowPassword(!showPassword)}
               >
                 <Ionicons
-                  name={showPassword ? "ios-eye-off" : "ios-eye"}
+                  name={showPassword ?"eye-off-outline" : "eye-outline"}
                   size={24}
                   color={Colors.primary}
                 />
               </TouchableOpacity>
             </View>
 
-            <View style={styles.btn}>
-              <Button
-                onPress={pendingVerification ? onPressVerify : onSignUpPress}
-                title={pendingVerification ? "Verify Email" : "Sign Up"}
-                color={"#fff"}
-              />
+            <View style={defaultStyles.btn}>
+              <TouchableOpacity
+                onPress={pendingVerification ? onPressVerify : onSignUpPress} // we dont have that in login
+                style={defaultStyles.btn}
+              >
+                <Text style={defaultStyles.btnText}>
+                  {pendingVerification ? "Verify Email" : "Sign Up"}
+                </Text>
+              </TouchableOpacity>
             </View>
+
           </>
         )}
 
@@ -220,7 +224,7 @@ const Page = () => {
             onPress={() => onSelectAuth(Strategy.Apple)}
           >
             <Ionicons
-              name="md-logo-apple"
+              name="logo-apple"
               size={24}
               style={defaultStyles.btnIcon}
             />
@@ -231,7 +235,7 @@ const Page = () => {
             onPress={() => onSelectAuth(Strategy.Google)}
           >
             <Ionicons
-              name="md-logo-google"
+              name="logo-google"
               size={24}
               style={defaultStyles.btnIcon}
             />
@@ -242,7 +246,7 @@ const Page = () => {
             onPress={() => onSelectAuth(Strategy.Facebook)}
           >
             <Ionicons
-              name="md-logo-facebook"
+              name="logo-facebook"
               size={24}
               style={defaultStyles.btnIcon}
             />
@@ -310,10 +314,10 @@ const styles = StyleSheet.create({
   },
   btn: {
     backgroundColor: "#FF385C",
-    borderWidth: 1,
-    borderColor: 'transparent',
+    borderWidth: 0,
+    borderColor: '#ffffff',
     height: 50,
-    borderRadius: 8,
+    borderRadius: 0,
     alignItems: "center",
     justifyContent: "center",
     flexDirection: "row",

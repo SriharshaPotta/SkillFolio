@@ -50,7 +50,7 @@ const PwReset = () => {
       {/* Back Button */}
       {!successfulCreation && (
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Ionicons name="ios-close" size={32} color={Colors.primary} />
+          <Ionicons name="arrow-back-outline" size={32} color={Colors.primary} />
         </TouchableOpacity>
       )}
 

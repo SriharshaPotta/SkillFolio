@@ -7,16 +7,18 @@ import { defaultStyles } from 'constants/styles';
 import Colors from 'constants/Colors';
 import * as ImagePicker from 'expo-image-picker';
 
-
+ 
 const Page = () => {
   const{ signOut, isSignedIn } = useAuth();
-  const{ user }= useUser();
-  const[firstName, setFirstName] =useState(user?.firstName);
+  const{ user } = useUser();
+  const[firstName, setFirstName] = useState(user?.firstName);
   const[lastName, setLastName] = useState(user?.lastName);
   const[email, setEmail] = useState(user?.emailAddresses[0].emailAddress);
   const[edit, setEdit] = useState(false);
 
   const [isBellPressed, setIsBellPressed] = useState(false);
+
+  
 
   useEffect(() => {
     if(!user) return;
@@ -280,6 +282,10 @@ const styles = StyleSheet.create({
 export const getFirstName = () => {
   const { user } = useUser();
   return user?.firstName || "";
+};
+export const getUserId = () => {
+  const { user } = useUser();
+  return user?.id || ""; // Assuming id is where the user id is stored
 };
 
 export default Page

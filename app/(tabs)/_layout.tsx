@@ -14,15 +14,25 @@ const Layout = () => {
         },
       }}>
       <Tabs.Screen
-        name = "index"
+        name="index"
         options={{
           tabBarLabel: "Explore",
           headerShown: false,
           tabBarIcon: ({color, size}) => <Ionicons name="search" color={color} size={size}/>
         }}
       />
+      {/*
       <Tabs.Screen
-        name = "portfolio"
+        name="portfolio"
+        options={{
+          tabBarLabel: "OldPortfolio",
+          headerShown: false,
+          tabBarIcon: ({color, size}) => <Ionicons name="folder-open" color={color} size={size}/>
+        }}
+      />  
+      */}
+      <Tabs.Screen
+        name="portfolio2"
         options={{
           tabBarLabel: "Portfolio",
           headerShown: false,
@@ -30,7 +40,15 @@ const Layout = () => {
         }}
       />
       <Tabs.Screen
-        name = "profile"
+        name="create"
+        options={{
+          tabBarLabel: "Create",
+          headerShown: false,
+          tabBarIcon: ({color, size}) => <Ionicons name="sparkles-outline" color={color} size={size}/>
+        }}
+      />
+      <Tabs.Screen
+        name="profile"
         options={{
           tabBarLabel: "Profile",
           headerShown: false,

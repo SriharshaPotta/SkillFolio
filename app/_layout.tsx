@@ -2,10 +2,10 @@ import { Ionicons } from '@expo/vector-icons';
 import { useFonts } from 'expo-font';
 import { SplashScreen, Stack, useRouter } from 'expo-router';
 import React, { useEffect } from 'react';
-import { TouchableOpacity } from 'react-native-gesture-handler';
 import * as SecureStore from 'expo-secure-store';
 import { ClerkProvider, useAuth } from '@clerk/clerk-expo';
 import { NavigationContainer } from '@react-navigation/native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 const CLERK_PUBLISHABLE_KEY = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY;
 
@@ -77,6 +77,8 @@ function RootLayoutNav() {
     }  
   }, [isLoaded]);
   return (
+    <GestureHandlerRootView>
+
     <Stack
       screenOptions={{
         headerShown: false,
@@ -106,5 +108,7 @@ function RootLayoutNav() {
         }}
       ></Stack.Screen>
     </Stack>
+    </GestureHandlerRootView>
+
   );
 }

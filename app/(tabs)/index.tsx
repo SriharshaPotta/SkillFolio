@@ -1,36 +1,11 @@
-import React, { useEffect, useRef, useState } from "react";
-import {
-  View,
-  Text,
-  Image,
-  Button,
-  ScrollView,
-  StyleSheet,
-  Modal,
-  TextInput,
-  TouchableOpacity,
-  SafeAreaView,
-  Animated,
-} from "react-native";
+import React, { useEffect, useRef, useState, forwardRef } from "react";
+import {View,Text,Image,Button,ScrollView,StyleSheet,Modal,TextInput,TouchableOpacity,SafeAreaView,Animated,} from "react-native";
 import * as ImagePicker from 'expo-image-picker'; // Import ImagePicker
-import {
-  FontAwesome5,
-  Ionicons,
-  MaterialCommunityIcons,
-} from "@expo/vector-icons";
+import {FontAwesome5,Ionicons,MaterialCommunityIcons,} from "@expo/vector-icons";
 import { Swipeable } from "react-native-gesture-handler";
 import { printToFileAsync } from "expo-print";
 import { shareAsync } from "expo-sharing";
-import {
-  Timestamp,
-  addDoc,
-  collection,
-  deleteDoc,
-  doc,
-  getDocs,
-  onSnapshot,
-  updateDoc,
-} from "firebase/firestore";
+import {Timestamp,addDoc,collection,deleteDoc,doc,getDocs,onSnapshot,updateDoc,} from "firebase/firestore";
 import { FIRESTORE_DB } from "../../firebaseConfig";
 import { useAuth, useUser } from "@clerk/clerk-expo";
 import Colors from "constants/Colors";
@@ -38,8 +13,10 @@ import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { Video } from "expo-av";
 import { jsPDF } from "jspdf";
 
-const Portfolio = () => {
+
+const Feed = () => {
   let feedsfeedIDs = new Array();
+
 
   const { signOut, isSignedIn } = useAuth();
   const { user } = useUser();
@@ -47,7 +24,9 @@ const Portfolio = () => {
   const [lastName, setLastName] = useState(user?.lastName);
   const [email, setEmail] = useState(user?.emailAddresses[0].emailAddress);
 
+
   const swipeableRef = useRef(null);
+
 
   const [feeds, setFeeds] = useState<
     {
@@ -71,7 +50,7 @@ const Portfolio = () => {
         "I was honored to have the opportunity to compete at Future Business Leaders of America's (FBLA) Texas State Conference. While there, I competed in the Mobile Application Development event, and maganged to place 1st. I am truly thankfull for all those who have helped me on this journey. I can't wait to now compete at the National Leadership Conference in Orlando, Florida this Summer!!",
       userName: user?.fullName,
       userId: user?.id,
-      userProfileImageUrl: user?.profileImageUrl,
+      userProfileImageUrl: user?.imageUrl,
       firebaseId: "",
       likes: 0,
       image: [],
@@ -85,7 +64,7 @@ const Portfolio = () => {
         "I will running for the Texas TSA State Vice President this April! No matter the outcome, I am thankfull for all the people who have given me this opportunity. This really couldn't have happen without your help and continued support. Thanks!",
       userName: user?.fullName,
       userId: user?.id,
-      userProfileImageUrl: user?.profileImageUrl,
+      userProfileImageUrl: user?.imageUrl,
       firebaseId: "",
       likes: 0,
       image: [],
@@ -99,7 +78,7 @@ const Portfolio = () => {
         "I am excited to inform everyone that I will attending HOSA, Future Health Professionals, International Leadership Conference (ILC), this Summer, in Dallas, Texas!",
       userName: user?.fullName,
       userId: user?.id,
-      userProfileImageUrl: user?.profileImageUrl,
+      userProfileImageUrl: user?.imageUrl,
       firebaseId: "",
       likes: 0,
       image: [],
@@ -108,14 +87,16 @@ const Portfolio = () => {
     },
   ]);
 
+
   const [isAddFeedModalVisible, setAddFeedModalVisible] = useState(false);
+
 
   const [newFeed, setNewFeed] = useState({
     title: "",
     description: "",
     userName: user?.fullName,
     userId: user?.id,
-    userProfileImageUrl: user?.profileImageUrl,
+    userProfileImageUrl: user?.imageUrl,
     likes: 0,
     likedBy: [],
     image: [],
@@ -126,6 +107,7 @@ const Portfolio = () => {
       setImages(images.filter((_, index) => index !== indexToRemove));
     };
 
+
     // Function to handle image selection
     const pickImage = async () => {
       let result = await ImagePicker.launchImageLibraryAsync({
@@ -135,22 +117,27 @@ const Portfolio = () => {
         quality: 1,
       });
 
+
       if (!result.canceled) {
         const selectedImage = result.assets[0].uri; // Using assets array to access selected image
         setImages([...images, selectedImage]);
       }
     };
 
+
   const userId = user?.id ? user.id : "";
   const likePost = async (index: number) => {
     const updatedFeeds = [...feeds];
     const feed = updatedFeeds[index];
 
+
     // Ensure userId is initialized
     const userId = user?.id ? user.id : "";
 
+
     console.log("Feed:", feed);
     console.log("UserId:", userId);
+
 
     // Toggle like state
     if (feed && feed.likedBy && userId) {
@@ -164,7 +151,9 @@ const Portfolio = () => {
         feed.likedBy.push(userId);
       }
 
+
       setFeeds(updatedFeeds);
+
 
       const feedDocRef = doc(collection(userDocRef, "public"), feed.firebaseId);
       await updateDoc(feedDocRef, { likedBy: feed.likedBy });
@@ -172,17 +161,20 @@ const Portfolio = () => {
     }
   };
 
+
   const toggleAddFeedModal = () => {
     setAddFeedModalVisible(!isAddFeedModalVisible);
   };
 
   const [initialDataLoaded, setInitialDataLoaded] = useState(false);
 
+
   useEffect(() => {
     const fetchPortfolioData = async () => {
       // Fetch portfolio data from Firestore using userDocRef
       const userFeedsRef = collection(userDocRef, "public");
       const [feedsSnapshot] = await Promise.all([getDocs(userFeedsRef)]);
+
 
       const feedsData = feedsSnapshot.docs.map(
         (doc: { id: any; data: () => any }) => ({ id: doc.id, ...doc.data() })
@@ -191,14 +183,17 @@ const Portfolio = () => {
       setFeeds(feedsData);
     };
 
+
     if (isSignedIn) {
       fetchPortfolioData();
     }
   }, [isSignedIn]); // Add dependencies as needed
 
+
   // ADD
   const userCollection = collection(FIRESTORE_DB, "public");
   const userDocRef = doc(userCollection, "public");
+
 
   const addFeed = async () => {
     if (newFeed.title && newFeed.description) {
@@ -207,7 +202,7 @@ const Portfolio = () => {
         description: newFeed.description,
         userName: user?.fullName,
         userId: user?.id,
-        userProfileImageUrl: user?.profileImageUrl,
+        userProfileImageUrl: user?.imageUrl,
         likes: 0,
         image: images,
         likedBy: [],
@@ -233,50 +228,53 @@ const Portfolio = () => {
       toggleAddFeedModal();
     }
   };
-  //DELETE
-  const deleteFeed = async (localId: number, firebaseId: string) => {
+  // DELETE
+const deleteFeed = async (localId: number, firebaseId: string) => {
+  if (user?.id) {
     const updatedFeeds = feeds.filter((feed) => feed.id !== localId);
     setFeeds(updatedFeeds);
     const feedDocRef = doc(collection(userDocRef, "public"), firebaseId);
     await deleteDoc(feedDocRef);
+  }
+};
+
+// RENDER
+const renderFeeds = () => {
+  const renderRightActions = (
+    progress: Animated.AnimatedInterpolation<string | number>,
+    dragX: Animated.AnimatedInterpolation<string | number>,
+    index: number
+  ) => {
+    const trans = dragX.interpolate({
+      inputRange: [0, 50, 100],
+      outputRange: [0, 0.5, 1],
+    });
+    if (user?.id === feeds[index].userId) {
+      return (
+        <TouchableOpacity
+          onPress={() => deleteFeed(feeds[index].id, feeds[index].firebaseId)}
+        >
+          <View style={styles.deleteButton}>
+            <Animated.View
+              style={{
+                transform: [{ translateX: trans }],
+              }}
+            >
+              <FontAwesome5
+                name="trash-alt"
+                size={20}
+                color="red"
+                style={styles.deleteIcon}
+              />
+            </Animated.View>
+          </View>
+        </TouchableOpacity>
+      );
+    } else {
+      // If the current user is not the owner, return null to hide the delete button
+      return null;
+    }
   };
-  // RENDER
-  const renderFeeds = () => {
-    const renderRightActions = (
-      progress: Animated.AnimatedInterpolation<string | number>,
-      dragX: Animated.AnimatedInterpolation<string | number>,
-      index: number
-    ) => {
-      const trans = dragX.interpolate({
-        inputRange: [0, 50, 100],
-        outputRange: [0, 0.5, 1],
-      });
-      if (user?.id === feeds[index].userId) {
-        return (
-          <TouchableOpacity
-            onPress={() => deleteFeed(feeds[index].id, feeds[index].firebaseId)}
-          >
-            <View style={styles.deleteButton}>
-              <Animated.View
-                style={{
-                  transform: [{ translateX: trans }],
-                }}
-              >
-                <FontAwesome5
-                  name="trash-alt"
-                  size={20}
-                  color="red"
-                  style={styles.deleteIcon}
-                />
-              </Animated.View>
-            </View>
-          </TouchableOpacity>
-        );
-      } else {
-        // If the current user is not the owner, return null to hide the delete button
-        return null;
-      }
-    };
     return feeds.map((feed, index) => (
       <Swipeable
         key={feed.id}
@@ -289,12 +287,13 @@ const Portfolio = () => {
             <View style={{ flexDirection: "row" }}>
               <Image
                 source={
-                  user?.profileImageUrl
+                  user?.imageUrl
                     ? { uri: feed.userProfileImageUrl }
                     : require("app/(tabs)/tabsImages/blankProfile.jpg")
                 }
                 style={styles.previewImage}
               />
+
 
               <Text style={styles.userName}> {feed.userName}</Text>
             </View>
@@ -337,6 +336,7 @@ const Portfolio = () => {
       </Swipeable>
     ));
   };
+
 
   return (
     // MY PORTFOLIO
@@ -423,6 +423,7 @@ const Portfolio = () => {
   );
 };
 
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -471,7 +472,7 @@ const styles = StyleSheet.create({
   feedTitle: {
     fontSize: 20,
     fontWeight: "bold",
-    marginBottom: 10,
+    marginBottom: 5,
     fontFamily: "mon-sb",
   },
   feedDescription: {
@@ -490,7 +491,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontFamily: "mon-b",
     marginTop: 35,
-    
+   
   },
   modalButtonsContainer: {
     flexDirection: "row",
@@ -617,7 +618,7 @@ const styles = StyleSheet.create({
     resizeMode: "cover",
     marginBottom: 10,
     borderRadius: 10,
-    marginTop: 20,
+    marginTop: 10,
   },
   imageContainer: {
     position: "relative",
@@ -652,4 +653,8 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Portfolio;
+
+export default Feed;
+
+
+

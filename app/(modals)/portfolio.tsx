@@ -1,40 +1,20 @@
-import React, { useEffect, useRef, useState } from "react";
-import {
-  View,
-  Text,
-  Button,
-  ScrollView,
-  StyleSheet,
-  Modal,
-  TextInput,
-  TouchableOpacity,
-  SafeAreaView,
-  Animated,
-  Image,
-} from "react-native";
-import {
-  FontAwesome5,
-  Ionicons,
-  MaterialCommunityIcons,
-} from "@expo/vector-icons";
-import * as ImagePicker from 'expo-image-picker'; // Import ImagePicker
-import { Swipeable } from "react-native-gesture-handler";
+import React, { useEffect, useRef, useState, forwardRef } from "react";
+import { View, Text, Button, ScrollView, StyleSheet, Modal, TextInput, TouchableOpacity, SafeAreaView, Animated, Image } from "react-native";
+import { FontAwesome5, Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import * as ImagePicker from 'expo-image-picker';
+import { GestureHandlerRootView, Swipeable } from "react-native-gesture-handler";
 import { printToFileAsync } from "expo-print";
 import { shareAsync } from "expo-sharing";
-import {
-  addDoc,
-  collection,
-  deleteDoc,
-  doc,
-  getDocs,
-  onSnapshot,
-} from "firebase/firestore";
-import { FIRESTORE_DB} from "../../firebaseConfig";
+import { addDoc, collection, deleteDoc, doc, getDocs, onSnapshot } from "firebase/firestore";
+import { FIRESTORE_DB } from "../../firebaseConfig";
 import { useAuth, useUser } from "@clerk/clerk-expo";
 import Colors from "constants/Colors";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { Video } from "expo-av";
 import { jsPDF } from "jspdf";
+import { LogBox } from "react-native";
+
+LogBox.ignoreAllLogs();
 
 const Portfolio = () => {
 
@@ -46,8 +26,10 @@ const Portfolio = () => {
   const [lastName, setLastName] = useState(user?.lastName);
   const [email, setEmail] = useState(user?.emailAddresses[0].emailAddress);
 
+
+
   let generatePdf = async () => {
-    // Create the HTML content dynamically using user data
+    // Create the HTML content using user data
     const achievementsHtml = achievements.map(
       (achievement) =>
         `<p><strong>${achievement.title}</strong>: ${
@@ -118,107 +100,15 @@ const Portfolio = () => {
 
   const swipeableRef = useRef(null);
 
-  const [achievements, setAchievements] = useState<{ id: number; title: string; description: string; image: string[]; firebaseId: string; }[]>([
-    {
-      id: 1,
-      title: "Academic Excellence",
-      description: "Achieved academic excellence in the first semester.",
-      image: [],
-      firebaseId: "",
-    },
-    {
-      id: 2,
-      title: "Math Olympiad Participant",
-      description: "Successfully participated in the regional Math Olympiad.",
-      image: [],
-      firebaseId: "",
-    },
-  ]);
-  const [athletics, setAthletics] = useState<{ id: number; title: string; description: string; image: string[]; firebaseId: string; }[]>([
-    {
-      id: 1,
-      title: "Basketball Team",
-      description: "Played as a member of the school basketball team.",
-      image: [],
-      firebaseId: "",
-    },
-    {
-      id: 2,
-      title: "Track and Field",
-      description: "Participated in various track and field events.",
-      image: [],
-      firebaseId: "",
-    },
-  ]);
-  const [arts, setArts] = useState<{ id: number; title: string; description: string; image: string[]; firebaseId: string; }[]>([
-    {
-      id: 1,
-      title: "Oil Painting",
-      description: "Created beautiful oil paintings inspired by Lona Misa.",
-      image: [],
-      firebaseId: "",
-    },
-    {
-      id: 2,
-      title: "Watercolor Art",
-      description: "Explored the art of watercolor painting with themes like Gan Vogh.",
-      image: [],
-      firebaseId: "",
-    },
-  ]);
-  const [clubs, setClubs] = useState<{ id: number; title: string; description: string; image: string[]; firebaseId: string; }[]>([
-    {
-      id: 1,
-      title: "Future Business Leaders of America (FBLA)",
-      description: "Active member of FBLA, gaining valuable business insights.",
-      image: [],
-      firebaseId: "",
-    },
-    {
-      id: 2,
-      title: "Science Olympiad",
-      description: "Engaged in challenging science competitions and projects.",
-      image: [],
-      firebaseId: "",
-    },
-  ]);
-  const [services, setServices] = useState<{ id: number; title: string; description: string; image: string[]; firebaseId: string; }[]>([
-    {
-      id: 1,
-      title: "Community Volunteer",
-      description: "Provided assistance to community members in need.",
-      image: [],
-      firebaseId: "",
-    },
-    {
-      id: 2,
-      title: "Tutoring",
-      description: "Offered tutoring services to help fellow students succeed.",
-      image: [],
-      firebaseId: "",
-    },
-  ]);
-  const [honors, setHonors] = useState<{ id: number; title: string; description: string; image: string[]; firebaseId: string; }[]>([
-    {
-      id: 1,
-      title: "AP Biology Honors",
-      description: "Successfully completed the challenging AP Biology course.",
-      image: [],
-      firebaseId: "",
-    },
-    {
-      id: 2,
-      title: "Calculus Achievement",
-      description: "Achieved excellence in the study of Calculus.",
-      image: [],
-      firebaseId: "",
-    },
-  ]);
+  const [achievements, setAchievements] = useState<{ id: number; title: string; description: string; image: string[]; firebaseId: string; }[]>([]);
+  const [athletics, setAthletics] = useState<{ id: number; title: string; description: string; image: string[]; firebaseId: string; }[]>([]);
+  const [arts, setArts] = useState<{ id: number; title: string; description: string; image: string[]; firebaseId: string; }[]>([]);
+  const [clubs, setClubs] = useState<{ id: number; title: string; description: string; image: string[]; firebaseId: string; }[]>([]);
+  const [services, setServices] = useState<{ id: number; title: string; description: string; image: string[]; firebaseId: string; }[]>([]);
+  const [honors, setHonors] = useState<{ id: number; title: string; description: string; image: string[]; firebaseId: string; }[]>([]);
 
-  const [isAddAchievementModalVisible, setAddAchievementModalVisible] =
-    useState(false);
-  const [isAddAthleticModalVisible, setAddAthleticModalVisible] =
-    useState(false);
+  const [isAddAchievementModalVisible, setAddAchievementModalVisible] = useState(false);
+  const [isAddAthleticModalVisible, setAddAthleticModalVisible] = useState(false);
   const [isAddArtModalVisible, setAddArtModalVisible] = useState(false);
   const [isAddClubModalVisible, setAddClubModalVisible] = useState(false);
   const [isAddServiceModalVisible, setAddServiceModalVisible] = useState(false);
@@ -478,7 +368,6 @@ const Portfolio = () => {
     }
   };
 
-  //DELETE
   const deleteAchievement = async (localId: number, firebaseId: string) => {
     const updatedAchievements = achievements.filter(
       (achievement) => achievement.id !== localId
@@ -561,6 +450,7 @@ const Portfolio = () => {
       );
     };
   return achievements.map((achievement, index) => (
+    <GestureHandlerRootView>
     <Swipeable
       key={achievement.id}
       renderRightActions={(progress, dragX) =>
@@ -587,6 +477,8 @@ const Portfolio = () => {
         </View>
       </View>
     </Swipeable>
+    </GestureHandlerRootView>
+
   ));
   };
 
@@ -624,6 +516,7 @@ const Portfolio = () => {
       );
     };
     return athletics.map((athletic, index) => (
+      <GestureHandlerRootView>
       <Swipeable
         key={athletic.id}
         renderRightActions={(progress, dragX) =>
@@ -651,6 +544,8 @@ const Portfolio = () => {
           </View>
         </View>
       </Swipeable>
+      </GestureHandlerRootView>
+
     ));
   };
 
@@ -686,6 +581,7 @@ const Portfolio = () => {
       );
     };
     return arts.map((art, index) => (
+      <GestureHandlerRootView>
       <Swipeable
         key={art.id}
         renderRightActions={(progress, dragX) =>
@@ -711,6 +607,8 @@ const Portfolio = () => {
           </View>
         </View>
       </Swipeable>
+      </GestureHandlerRootView>
+
     ));
   };
 
@@ -746,6 +644,8 @@ const Portfolio = () => {
       );
     };
     return clubs.map((club, index) => (
+      <GestureHandlerRootView>
+
       <Swipeable
         key={club.id}
         renderRightActions={(progress, dragX) =>
@@ -773,6 +673,8 @@ const Portfolio = () => {
           </View>
         </View>
       </Swipeable>
+      </GestureHandlerRootView>
+
     ));
   };
   const renderServices = () => {
@@ -809,6 +711,8 @@ const Portfolio = () => {
       );
     };
     return services.map((service, index) => (
+      <GestureHandlerRootView>
+
       <Swipeable
         key={service.id}
         renderRightActions={(progress, dragX) =>
@@ -836,6 +740,8 @@ const Portfolio = () => {
           </View>
         </View>
       </Swipeable>
+      </GestureHandlerRootView>
+
     ));
   };
   const renderHonors = () => {
@@ -872,6 +778,8 @@ const Portfolio = () => {
       );
     };
     return honors.map((honor, index) => (
+      <GestureHandlerRootView>
+
       <Swipeable
         key={honor.id}
         renderRightActions={(progress, dragX) =>
@@ -899,11 +807,14 @@ const Portfolio = () => {
           </View>
         </View>
       </Swipeable>
+      </GestureHandlerRootView>
+
     ));
   };
 
   return (
     // MY PORTFOLIO
+  <GestureHandlerRootView>
     <SafeAreaView style={{ flex: 1 }}>
       <ScrollView style={styles.container}>
         <View style={styles.headerContainer}>
@@ -914,9 +825,9 @@ const Portfolio = () => {
           >
             {firstName}'s Portfolioㅤ
             <Ionicons
-              name="ios-share"
-              color={"black"}
-              size={35}
+              name="share-social-outline"
+              color={Colors.primary}
+              size={50}
               onPress={generatePdf}
             />
           </Text>
@@ -942,7 +853,8 @@ const Portfolio = () => {
           </TouchableOpacity>
         </View>
         {/*ACADEMIC ACHIEVEMENTS - Adding Page*/}
-        <Modal visible={isAddAchievementModalVisible} animationType="slide">
+        <View style={styles.centeredView}>
+        <Modal visible={isAddAchievementModalVisible} transparent={true} animationType="slide">
           <SafeAreaView style={styles.modalContainer}>
             <ScrollView contentContainerStyle={styles.scrollViewContent}>
               <Text style={styles.modalTitle}>Add Academic Achievement</Text>
@@ -1001,6 +913,7 @@ const Portfolio = () => {
             </ScrollView>
           </SafeAreaView>
         </Modal>
+        </View>
 
         {/*ATHLETIC PARTICIPATION*/}
         <View style={styles.section}>
@@ -1368,6 +1281,8 @@ const Portfolio = () => {
         </View>
       </ScrollView>
     </SafeAreaView>
+    </GestureHandlerRootView>
+
   );
 };
 
@@ -1439,14 +1354,23 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 24,
     fontWeight: "bold",
-    marginBottom: 20,
+    marginBottom: 60,
     textAlign: "center",
     fontFamily: "mon-b",
+    marginTop: 50,
   },
   modalButtonsContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
     marginTop: 20,
+  },
+  centeredView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 22,
+    height: 50,
+    width: 50,
   },
   modalButton: {
     flex: 1,
@@ -1464,25 +1388,44 @@ const styles = StyleSheet.create({
     fontFamily: "mon-b",
   },
   input: {
-    height: 40,
-    borderColor: "gray",
-    borderWidth: 1,
-    marginBottom: 20,
-    paddingLeft: 10,
+    height: 50,
+    borderColor: "#800080",
+    borderWidth: 2,
+    paddingLeft: 18,
     borderRadius: 10,
+    marginBottom: 50,
     fontFamily: "mon",
     justifyContent: "center",
     alignItems: "center",
-    marginLeft: 15,
-    marginRight: 15,
+    marginLeft: 20,
+    marginRight: 20,
     textAlignVertical: "top",
+    shadowColor: "black",
+    shadowRadius: 100,
+    shadowOffset: {
+      width: 1,
+      height: 2,
+    },
+    shadowOpacity: 0.9,
+
+
   },
   multilineInput: {
-    height: 100,
+    height: 400,
     textAlignVertical: "top",
+    shadowColor: "black",
+    shadowRadius: 100,
+    shadowOffset: {
+      width: 1,
+      height: 2,
+    },
+    shadowOpacity: 0.9,
   },
   addButtonContainer: {
     marginTop: 0,
+    shadowColor: "#800080",
+    shadowRadius: 10,
+
   },
   addButton: {
     backgroundColor: "#27ae60",
@@ -1603,4 +1546,67 @@ const styles = StyleSheet.create({
   },
 });
 
+
 export default Portfolio;
+
+export const addAchievement = async (
+  newAchievement: {
+    title: string;
+    description: string;
+    image: string[];
+  },
+  userId: string, // Assuming userId is passed as an argument
+  achievements: { id: number; title: string; description: string; image: string[]; firebaseId: string; }[],
+  setAchievements: React.Dispatch<React.SetStateAction<{ id: number; title: string; description: string; image: string[]; firebaseId: string; }[]>>,
+  setNewAchievement: React.Dispatch<React.SetStateAction<{ title: string; description: string; image: string[]; }>>,
+  setImages: React.Dispatch<React.SetStateAction<string[]>>,
+) => {
+  try {
+    if (newAchievement.title && newAchievement.description) {
+      const achievementData = {
+        title: newAchievement.title,
+        description: newAchievement.description,
+        image: newAchievement.image,
+      };
+      const achievementDocRef = await addDoc(
+        collection(FIRESTORE_DB, 'users', userId, 'achievements'),
+        achievementData
+      );
+      const firebaseId = achievementDocRef.id;
+
+      // Update local state with the new achievement
+      setAchievements([
+        ...achievements,
+        { id: achievements.length + 1, firebaseId, ...achievementData },
+      ]);
+
+      // Clear input fields or reset state as needed
+      setNewAchievement({ title: "", description: "", image: [] });
+      setImages([]);
+    }
+  } catch (error) {
+    console.error("Error adding achievement: ", error);
+  }
+};
+
+export const deleteAchievement = async (
+  userDocRef: any,  // Adjust the type as per your Firestore setup
+  achievements: any[], // Adjust the type according to your achievements state
+  setAchievements: React.Dispatch<React.SetStateAction<any[]>>, // Adjust the type according to your setAchievements state
+  localId: number,
+  firebaseId: string
+) => {
+  const updatedAchievements = achievements.filter(
+    (achievement) => achievement.id !== localId
+  );
+  setAchievements(updatedAchievements);
+
+  try {
+    const achievementDocRef = doc(collection(userDocRef, "achievements"), firebaseId);
+    await deleteDoc(achievementDocRef);
+    console.log("Achievement deleted successfully!");
+  } catch (error) {
+    console.error("Error deleting achievement:", error);
+    // Handle error state or logging as needed
+  }
+};

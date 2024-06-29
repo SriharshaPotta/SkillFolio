@@ -8,7 +8,7 @@ const PrivacyPolicyPage = () => {
     <SafeAreaView style={styles.container}>
       <ScrollView>
         <Link href="/(tabs)/profile" style={styles.closeButton}>
-          <Ionicons name="ios-arrow-back" size={24} color="black" />
+          <Ionicons name="arrow-back-outline" size={24} color="black" />
         </Link>
         <View>
           <Text style={styles.title}>Privacy Policy</Text>

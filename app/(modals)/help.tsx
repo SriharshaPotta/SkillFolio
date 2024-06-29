@@ -23,7 +23,7 @@ const VideoPlayer = () => {
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollView}>
         <Link href="/(tabs)/profile" style={styles.closeButton}>
-          <Ionicons name="ios-arrow-back" size={24} color="black" />
+          <Ionicons name="arrow-back-outline" size={24} color="black" />
         </Link>
         <Text style={styles.pageTitle}>Help</Text>
         <View style={styles.videoContainer}>
